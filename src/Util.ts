@@ -1,5 +1,4 @@
 import { Constants } from "./Constants";
-import { VariableParser } from "./parser/VariableParser";
 
 export abstract class Util {
 

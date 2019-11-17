@@ -9,7 +9,7 @@ main();
  * 入口函数
  */
 function main() {
-    new MakeFile("puremvc");
+    new MakeFile("sunui");
 }
 
 /**
@@ -17,5 +17,5 @@ function main() {
  */
 function defineCompileRoot(): void {
     const args = process.argv.slice(2);
-    Constants.DIR_ROOT = args[0] || "E:\\work\\laya\\1.x";
+    Constants.DIR_ROOT = args[0] || "D:\\Project\\laya\\1.x";
 }

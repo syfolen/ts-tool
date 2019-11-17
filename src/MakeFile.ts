@@ -15,7 +15,7 @@ export class MakeFile {
     /**
      * JS文件输出目录
      */
-    private $dirOutput: string;
+    // private $dirOutput: string;
 
     /**
      * 发布目录
@@ -27,13 +27,12 @@ export class MakeFile {
      */
     constructor(name: string) {
         this.$dirSrc = Util.getAbsolutePath(name, Constants.DIR_SRC);
-        this.$dirOutput = Util.getAbsolutePath(name, Constants.DIR_OUTPUT, name);
         this.$dirRelease = Util.getAbsolutePath(name, Constants.DIR_RELEASE);
 
         const files: FileParser[] = [];
         new MakeTsFile(this.$dirSrc, name, files);
 
-        new MergeTsFile(this.$dirSrc, name, files);
+        // new MergeTsFile(this.$dirSrc, name, files);
         // new CreateDtsFile(this.$dirRelease);
         // new CopyJsLibFiles(this.$dirOutput, this.$dirRelease);
     }

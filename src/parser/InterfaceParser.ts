@@ -1,7 +1,13 @@
 import { DefineParser } from "./DefineParser";
 import { Util } from "../Util";
+import { IFunctionInfo } from "../interfaces/IFunctionInfo";
+import { DfnTypeEnum } from "../interfaces/DfnTypeEnum";
 
 export class InterfaceParser extends DefineParser {
+
+    constructor(str: string) {
+        super(str, DfnTypeEnum.INTERFACE);
+    }
 
     protected $parseDefineInfomation(): void {
         const line = this.$lines.shift() as string;
@@ -28,7 +34,43 @@ export class InterfaceParser extends DefineParser {
 
         this.$parseParentDefination(array.slice(0));
 
-        this.ok = true;
         Util.sortLines(this.$lines);
+
+        const m = this.$parseVariables(this.$lines.slice(0));
+        this.$lines.splice(0, m);
+
+        const n = this.$parseFunctions(this.$lines.slice(0));
+        if (n !== this.$lines.length) {
+            throw Error(`解析终止，尚有${this.$lines.length - n}行没有解析 line:${line}`);
+        }
+
+        this.ok = true;
+    }
+
+    /**
+     * 解析方法
+     */
+    protected $parseFunctions(lines: string[]): number {
+        const total = lines.length;
+
+        while (lines.length > 0) {
+            const remain = lines.length;
+            const info: IFunctionInfo = {
+                line: "",
+                lines: [],
+                notes: []
+            };
+            info.notes = Util.readNotes(lines);
+
+            const line = lines.shift() as string;
+            if (line.substr(line.length - 1) !== ";") {
+                return total - remain;
+            }
+            info.line = line;
+
+            this.functions.push(info);
+        }
+
+        return total;
     }
 }

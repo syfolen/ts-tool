@@ -13,6 +13,8 @@ export class MergeTsFile {
 
     private $lines: string[] = [];
 
+    private $doneList: string[] = [];
+
     constructor(dir: string, name: string, files: FileParser[]) {
         this.$mergeNote(name, files);
 
@@ -49,9 +51,16 @@ export class MergeTsFile {
         for (const file of files) {
             if (file.parser instanceof InterfaceParser) {
                 const parser = file.parser;
+                if (this.$notYet(parser.name) === true) {
+                    continue;
+                }
                 this.$exportNotes(1, parser.notes);
             }
         }
+    }
+
+    private $notYet(name: string): boolean {
+        return false;
     }
 
     private $mergeClasses(files: FileParser[]): void {
@@ -59,9 +68,6 @@ export class MergeTsFile {
             if (file.parser instanceof ClassParser) {
                 const parser = file.parser;
                 this.$exportNotes(1, parser.notes);
-
-                const s0 = parser.keywords.length === 0 ? "" : parser.keywords.join(" ");
-
             }
         }
     }
@@ -90,7 +96,7 @@ export class MergeTsFile {
         let tabs = "";
         while (numOfTab > 0) {
             numOfTab--;
-            tabs += "\t";
+            tabs += Constants.TAB;
         }
 
         // 无视 export 标记

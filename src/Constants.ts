@@ -3,7 +3,7 @@ export abstract class Constants {
     /**
      * 分隔符
      */
-    static TAB: string;
+    static TAB: string = "    ";
 
     /**
      * 路径符

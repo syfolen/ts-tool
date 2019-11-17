@@ -1,7 +1,12 @@
 import { DefineParser } from "./DefineParser";
 import { Util } from "../Util";
+import { DfnTypeEnum } from "../interfaces/DfnTypeEnum";
 
 export class ClassParser extends DefineParser {
+
+    constructor(str: string) {
+        super(str, DfnTypeEnum.CLASS);
+    }
 
     protected $parseDefineInfomation(): void {
         const line = this.$lines.shift() as string;
@@ -10,8 +15,10 @@ export class ClassParser extends DefineParser {
         if (a === -1) {
             return;
         }
+
+        const keywords: string[] = [];
         if (line.indexOf(" abstract ") > -1) {
-            this.keywords.push("abstract");
+            keywords.push("abstract");
         }
 
         const str = line.substr(a + " class ".length);
@@ -20,7 +27,7 @@ export class ClassParser extends DefineParser {
             throw Error(`类命名格式有误 line:${line}`);
         }
 
-        this.name = str.substr(0, b);
+        this.name = this.$removeGenericity(str.substr(0, b));
         this.$lines.pop();
 
         const array = line.split(" ");
@@ -28,7 +35,7 @@ export class ClassParser extends DefineParser {
             throw Error(`错误的类定义格式 line:${line}`);
         }
 
-        if (this.keywords.length === 0) {
+        if (keywords.length === 0) {
             array.splice(0, 3);
         }
         else {
@@ -40,23 +47,12 @@ export class ClassParser extends DefineParser {
 
         Util.sortLines(this.$lines);
 
-        const n = this.variables.parse(this.$lines.slice(0));
-        this.$lines.splice(0, n);
+        const m = this.$parseVariables(this.$lines.slice(0));
+        this.$lines.splice(0, m);
 
-        this.functions.parse(this.$lines.slice(0));
-
-        for (const info of this.variables.infos) {
-            if (info.error !== "") {
-                console.error(info.error);
-                throw Error("解析变量出错 class " + this.name);
-            }
-        }
-
-        for (const info of this.functions.infos) {
-            if (info.error !== "") {
-                console.error(info.error);
-                throw Error("解析变量出错 class " + this.name);
-            }
+        const n = this.$parseFunctions(this.$lines.slice(0));
+        if (n !== this.$lines.length) {
+            throw Error(`解析终止，尚有${this.$lines.length - n}行没有解析 line:${line}`);
         }
 
         this.ok = true;

@@ -1,5 +1,5 @@
 
-export enum DefTypeEnum {
+export enum DfnTypeEnum {
 
     NONE = 0,
 
