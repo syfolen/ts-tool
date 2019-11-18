@@ -84,8 +84,17 @@ export abstract class DefineParser {
      * 判断是否为变量
      */
     protected $isVar(line: string): boolean {
-        const s0 = line.substr(line.length - 1);
-        return s0 === ";";
+        const reg0 = line.indexOf("(");
+        if (reg0 === -1) {
+            return true;
+        }
+
+        const reg1 = line.indexOf(":");
+        if (reg1 < reg0) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -93,7 +102,17 @@ export abstract class DefineParser {
      */
     protected $isFunc(line: string): boolean {
         const s0 = line.substr(line.length - 1);
-        return s0 === "{";
+        if (s0 === "{") {
+            return true;
+        }
+
+        const s1 = " " + line;
+        const reg0 = s1.indexOf(" abstract ");
+        if (reg0 > -1) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -117,7 +136,9 @@ export abstract class DefineParser {
                     lines: [],
                     notes: notes
                 }
-                if (this.$type !== DfnTypeEnum.INTERFACE) {
+                const s0 = " " + line;
+                const reg0 = s0.indexOf(" abstract ")
+                if (this.$type !== DfnTypeEnum.INTERFACE && reg0 === -1) {
                     let ok = false;
                     while (lines.length > 0) {
                         const line = lines.shift() as string;

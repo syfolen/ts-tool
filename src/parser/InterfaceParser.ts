@@ -38,23 +38,6 @@ export class InterfaceParser extends DefineParser {
     }
 
     /**
-     * 判断是否为变量
-     */
-    protected $isVar(line: string): boolean {
-        const reg0 = line.indexOf("(");
-        if (reg0 === -1) {
-            return true;
-        }
-
-        const reg1 = line.indexOf(":");
-        if (reg1 < reg0) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * 判断是否为函数
      */
     protected $isFunc(line: string): boolean {

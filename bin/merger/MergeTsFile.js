@@ -29,8 +29,7 @@ var MergeTsFile = /** @class */ (function () {
         numOfDfn = this.$mergeNamepaces(numOfDfn, files);
         this.$lines.push("}");
         this.str = this.$lines.join(Constants_1.Constants.NEWLINE);
-        var out = Util_1.Util.getAbsolutePath("myLaya", Constants_1.Constants.DIR_SRC);
-        var url = Util_1.Util.getAbsolutePath(out, name + ".ts");
+        var url = Util_1.Util.getAbsolutePath(dir, name + ".ts");
         fs_1.default.writeFileSync(url, this.str);
     }
     MergeTsFile.prototype.$mergeEnums = function (numOfDfn, files) {
@@ -45,7 +44,7 @@ var MergeTsFile = /** @class */ (function () {
             numOfDfn++;
             this.$exportNotes(1, parser.notes);
             this.$exportEnumName(parser);
-            var vars = parser.variables;
+            var vars = parser.variables.slice(0);
             var firstLine = true;
             while (vars.length > 0) {
                 if (firstLine === true) {
@@ -80,8 +79,8 @@ var MergeTsFile = /** @class */ (function () {
                 numOfDfn++;
                 this.$exportNotes(1, parser.notes);
                 this.$exportInterfaceName(parser);
-                var vars = parser.variables;
-                var funcs = parser.functions;
+                var vars = parser.variables.slice(0);
+                var funcs = parser.functions.slice(0);
                 var firstLine = true;
                 while (vars.length > 0) {
                     if (firstLine === true) {
@@ -131,8 +130,8 @@ var MergeTsFile = /** @class */ (function () {
                 numOfDfn++;
                 this.$exportNotes(1, parser.notes);
                 this.$exportClassName(parser);
-                var vars = parser.variables;
-                var funcs = parser.functions;
+                var vars = parser.variables.slice(0);
+                var funcs = parser.functions.slice(0);
                 var firstLine = true;
                 while (vars.length > 0) {
                     if (firstLine === true) {
@@ -150,11 +149,14 @@ var MergeTsFile = /** @class */ (function () {
                     var item = funcs.shift();
                     this.$exportNotes(2, item.notes);
                     this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.line);
-                    for (var _a = 0, _b = item.lines; _a < _b.length; _a++) {
-                        var line = _b[_a];
-                        this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + Constants_1.Constants.TAB + line);
+                    var s0 = " " + item.line;
+                    if (s0.indexOf(" abstract ") === -1) {
+                        for (var _a = 0, _b = item.lines; _a < _b.length; _a++) {
+                            var line = _b[_a];
+                            this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + Constants_1.Constants.TAB + line);
+                        }
+                        this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + "}");
                     }
-                    this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + "}");
                 }
                 this.$lines.push(Constants_1.Constants.TAB + "}");
             }
@@ -179,8 +181,8 @@ var MergeTsFile = /** @class */ (function () {
                 this.$checkEndLine();
             }
             numOfDfn++;
-            var vars = parser.variables;
-            var funcs = parser.functions;
+            var vars = parser.variables.slice(0);
+            var funcs = parser.functions.slice(0);
             var firstLine = true;
             while (vars.length > 0) {
                 if (firstLine === true) {

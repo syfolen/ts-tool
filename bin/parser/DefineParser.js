@@ -53,65 +53,33 @@ var DefineParser = /** @class */ (function () {
         return "define " + this.name + " extends [" + this.parents.join(",") + "] implements [" + this.interfaces.join(",") + "]";
     };
     /**
-     * 属性结束符
-     */
-    DefineParser.prototype.$getVarEndFlag = function () {
-        return ";";
-    };
-    /**
      * 判断是否为变量
      */
     DefineParser.prototype.$isVar = function (line) {
-        var s0 = line.substr(line.length - 1);
-        return s0 === ";";
+        var reg0 = line.indexOf("(");
+        if (reg0 === -1) {
+            return true;
+        }
+        var reg1 = line.indexOf(":");
+        if (reg1 < reg0) {
+            return true;
+        }
+        return false;
     };
     /**
      * 判断是否为函数
      */
     DefineParser.prototype.$isFunc = function (line) {
         var s0 = line.substr(line.length - 1);
-        return s0 === "{";
-    };
-    /**
-     * 解析单行数据，以判断数据的类型
-     */
-    DefineParser.prototype.$parseLine = function (line) {
-        return false;
-    };
-    /**
-     * 解析方法
-     */
-    DefineParser.prototype.$parseFunctions = function (lines) {
-        var total = lines.length;
-        while (lines.length > 0) {
-            var remain = lines.length;
-            var info = {
-                line: "",
-                lines: [],
-                notes: []
-            };
-            info.notes = Util_1.Util.readNotes(lines);
-            var line = lines.shift();
-            if (line.substr(line.length - 1) !== "{") {
-                return total - remain;
-            }
-            info.line = line;
-            var ok = false;
-            while (lines.length > 0) {
-                var line_1 = lines.shift();
-                if (line_1 === "}") {
-                    ok = true;
-                    break;
-                }
-                info.lines.push(line_1);
-            }
-            if (ok === false) {
-                throw Error("\u627E\u4E0D\u5230\u51FD\u6570\u7ED3\u675F\u7B26 line:" + line);
-            }
-            Util_1.Util.sortLines(info.lines);
-            this.functions.push(info);
+        if (s0 === "{") {
+            return true;
         }
-        return total;
+        var s1 = " " + line;
+        var reg0 = s1.indexOf(" abstract ");
+        if (reg0 > -1) {
+            return true;
+        }
+        return false;
     };
     /**
      * 逐行解析数据
@@ -133,15 +101,17 @@ var DefineParser = /** @class */ (function () {
                     lines: [],
                     notes: notes
                 };
-                if (this.$type !== DfnTypeEnum_1.DfnTypeEnum.INTERFACE) {
+                var s0 = " " + line;
+                var reg0 = s0.indexOf(" abstract ");
+                if (this.$type !== DfnTypeEnum_1.DfnTypeEnum.INTERFACE && reg0 === -1) {
                     var ok = false;
                     while (lines.length > 0) {
-                        var line_2 = lines.shift();
-                        if (line_2 === "}") {
+                        var line_1 = lines.shift();
+                        if (line_1 === "}") {
                             ok = true;
                             break;
                         }
-                        info.lines.push(line_2);
+                        info.lines.push(line_1);
                     }
                     if (ok === false) {
                         throw Error("\u51FD\u6570\u89E3\u6790\u5931\u8D25 line:" + info.line);
@@ -154,42 +124,6 @@ var DefineParser = /** @class */ (function () {
                 throw Error("\u89E3\u6790\u5931\u8D25 line:" + line);
             }
         }
-    };
-    /**
-     * 解析属性
-     */
-    DefineParser.prototype.$parseVariables = function (lines) {
-        var total = lines.length;
-        while (lines.length > 0) {
-            var remain = lines.length;
-            var info = {
-                line: "",
-                notes: []
-            };
-            info.notes = Util_1.Util.readNotes(lines);
-            var line = lines.shift();
-            // 若属性结束符为分号，则为class、interface或namespace，此时应当校验结束符
-            if (this.$getVarEndFlag() === ";" && line.substr(line.length - 1) !== ";") {
-                return total - remain;
-            }
-            if (this.$isNotVar(line) === true) {
-                return total - remain;
-            }
-            info.line = line;
-            this.variables.push(info);
-        }
-        return total;
-    };
-    /**
-     * 判断是否为属性定义
-     */
-    DefineParser.prototype.$isNotVar = function (line) {
-        var a = line.indexOf(":");
-        var b = line.indexOf("(");
-        if (b > -1 && b < a) {
-            return true;
-        }
-        return false;
     };
     /**
      * 父类解析实现函数

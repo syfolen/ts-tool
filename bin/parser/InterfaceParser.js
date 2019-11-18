@@ -42,42 +42,6 @@ var InterfaceParser = /** @class */ (function (_super) {
         this.ok = true;
     };
     /**
-     * 解析方法
-     */
-    InterfaceParser.prototype.$parseFunctions = function (lines) {
-        var total = lines.length;
-        while (lines.length > 0) {
-            var remain = lines.length;
-            var info = {
-                line: "",
-                lines: [],
-                notes: []
-            };
-            info.notes = Util_1.Util.readNotes(lines);
-            var line = lines.shift();
-            if (line.substr(line.length - 1) !== ";") {
-                return total - remain;
-            }
-            info.line = line;
-            this.functions.push(info);
-        }
-        return total;
-    };
-    /**
-     * 判断是否为变量
-     */
-    InterfaceParser.prototype.$isVar = function (line) {
-        var reg0 = line.indexOf("(");
-        if (reg0 === -1) {
-            return true;
-        }
-        var reg1 = line.indexOf(":");
-        if (reg1 < reg0) {
-            return true;
-        }
-        return false;
-    };
-    /**
      * 判断是否为函数
      */
     InterfaceParser.prototype.$isFunc = function (line) {

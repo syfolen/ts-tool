@@ -32,8 +32,12 @@ export class MakeFile {
         const files: FileParser[] = [];
         new MakeTsFile(this.$dirSrc, name, files);
 
-        new MergeTsFile(this.$dirSrc, name, files);
-        new CreateDtsFile(this.$dirRelease, name, files);
+        const s0 = Util.getAbsolutePath("myLaya", Constants.DIR_SRC);
+        new MergeTsFile(s0, name, files);
+
+        const s1 = Util.getAbsolutePath("myLaya", Constants.DIR_RELEASE);
+        new CreateDtsFile(s1, name, files);
+        
         // new CopyJsLibFiles(this.$dirOutput, this.$dirRelease);
     }
 }

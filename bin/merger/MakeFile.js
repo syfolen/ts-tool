@@ -14,8 +14,10 @@ var MakeFile = /** @class */ (function () {
         this.$dirRelease = Util_1.Util.getAbsolutePath(name, Constants_1.Constants.DIR_RELEASE);
         var files = [];
         new MakeTsFile_1.MakeTsFile(this.$dirSrc, name, files);
-        new MergeTsFile_1.MergeTsFile(this.$dirSrc, name, files);
-        new CreateDtsFile_1.CreateDtsFile(this.$dirRelease, name, files);
+        var s0 = Util_1.Util.getAbsolutePath("myLaya", Constants_1.Constants.DIR_SRC);
+        new MergeTsFile_1.MergeTsFile(s0, name, files);
+        var s1 = Util_1.Util.getAbsolutePath("myLaya", Constants_1.Constants.DIR_RELEASE);
+        new CreateDtsFile_1.CreateDtsFile(s1, name, files);
         // new CopyJsLibFiles(this.$dirOutput, this.$dirRelease);
     }
     return MakeFile;

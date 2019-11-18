@@ -46,6 +46,16 @@ var ClassParser = /** @class */ (function (_super) {
         this.$parseLines(this.$lines);
         this.ok = true;
     };
+    /**
+     * 判断是否为变量
+     */
+    ClassParser.prototype.$isVar = function (line) {
+        var s0 = line.substr(line.length - 1);
+        if (s0 === "{") {
+            return false;
+        }
+        return _super.prototype.$isVar.call(this, line);
+    };
     return ClassParser;
 }(DefineParser_1.DefineParser));
 exports.ClassParser = ClassParser;

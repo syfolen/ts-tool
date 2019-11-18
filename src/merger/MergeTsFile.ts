@@ -41,9 +41,7 @@ export class MergeTsFile {
 
         this.str = this.$lines.join(Constants.NEWLINE);
 
-        const out = Util.getAbsolutePath("myLaya", Constants.DIR_SRC);
-        const url: string = Util.getAbsolutePath(out, name + ".ts");
-
+        const url: string = Util.getAbsolutePath(dir, name + ".ts");
         fs.writeFileSync(url, this.str);
     }
 
@@ -62,7 +60,7 @@ export class MergeTsFile {
             this.$exportNotes(1, parser.notes);
             this.$exportEnumName(parser as EnumParser);
 
-            const vars: IVariableInfo[] = parser.variables;
+            const vars: IVariableInfo[] = parser.variables.slice(0);
 
             let firstLine = true;
             while (vars.length > 0) {
@@ -105,8 +103,8 @@ export class MergeTsFile {
                 this.$exportNotes(1, parser.notes);
                 this.$exportInterfaceName(parser as InterfaceParser);
 
-                const vars: IVariableInfo[] = parser.variables;
-                const funcs: IFunctionInfo[] = parser.functions;
+                const vars: IVariableInfo[] = parser.variables.slice(0);
+                const funcs: IFunctionInfo[] = parser.functions.slice(0);
 
                 let firstLine = true;
                 while (vars.length > 0) {
@@ -164,8 +162,8 @@ export class MergeTsFile {
                 this.$exportNotes(1, parser.notes);
                 this.$exportClassName(parser as ClassParser);
 
-                const vars: IVariableInfo[] = parser.variables;
-                const funcs: IFunctionInfo[] = parser.functions;
+                const vars: IVariableInfo[] = parser.variables.slice(0);
+                const funcs: IFunctionInfo[] = parser.functions.slice(0);
 
                 let firstLine = true;
                 while (vars.length > 0) {
@@ -184,10 +182,14 @@ export class MergeTsFile {
                     const item = funcs.shift() as IFunctionInfo;
                     this.$exportNotes(2, item.notes);
                     this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
-                    for (const line of item.lines) {
-                        this.$lines.push(`${Constants.TAB}${Constants.TAB}${Constants.TAB}${line}`);
+
+                    const s0 = " " + item.line;
+                    if (s0.indexOf(" abstract ") === -1) {
+                        for (const line of item.lines) {
+                            this.$lines.push(`${Constants.TAB}${Constants.TAB}${Constants.TAB}${line}`);
+                        }
+                        this.$lines.push(`${Constants.TAB}${Constants.TAB}}`);
                     }
-                    this.$lines.push(`${Constants.TAB}${Constants.TAB}}`);
                 }
 
                 this.$lines.push(`${Constants.TAB}}`);
@@ -217,8 +219,8 @@ export class MergeTsFile {
             }
             numOfDfn++;
 
-            const vars: IVariableInfo[] = parser.variables;
-            const funcs: IFunctionInfo[] = parser.functions;
+            const vars: IVariableInfo[] = parser.variables.slice(0);
+            const funcs: IFunctionInfo[] = parser.functions.slice(0);
 
             let firstLine = true;
             while (vars.length > 0) {
