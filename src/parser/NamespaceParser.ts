@@ -8,6 +8,8 @@ export class NamespaceParser extends DefineParser {
     }
 
     protected $parseDefineInfomation(): void {
+        this.$parseLines(this.$lines);
+
         this.ok = true;
     }
 }

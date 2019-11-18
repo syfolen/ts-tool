@@ -21,6 +21,11 @@ export abstract class DefineParser {
     str: string;
 
     /**
+     * 定义串
+     */
+    line: string = "";
+
+    /**
      * 名字
      */
     name: string = "";
@@ -28,7 +33,7 @@ export abstract class DefineParser {
     /**
      * 说明
      */
-    notes: string[];
+    notes: string[] = [];
 
     /**
      * 父类
@@ -54,7 +59,10 @@ export abstract class DefineParser {
         this.str = str;
         this.$type = type;
         this.$lines = str.split(Constants.NEWLINE);
-        this.notes = Util.readNotes(this.$lines);
+
+        if (type !== DfnTypeEnum.NAMESPACE) {
+            this.notes = Util.readNotes(this.$lines);
+        }
 
         this.$parseDefineInfomation();
 
@@ -68,130 +76,68 @@ export abstract class DefineParser {
     }
 
     /**
-     * 属性结束符
-     */
-    protected $getVarEndFlag(): string {
-        return ";";
-    }
-
-    /**
      * 解析实现函数
      */
     protected abstract $parseDefineInfomation(): void;
 
     /**
-     * 解析单行数据，以判断数据的类型
+     * 判断是否为变量
      */
-    protected $parseLine(line: string): boolean {
-
-        return false;
-    }
-
     protected $isVar(line: string): boolean {
-        const str = Util.trim(line);
-
-        // 判断结束符
-        const s0 = str.substr(str.length - 1);
-        if (s0 !== ";") {
-            return false;
-        }
-
-        // 必须为属性指定类型
-        const reg0 = str.indexOf(":");
-        if (reg0 === -1) {
-            throw Error(`没有指定属性的类型 line:${line}`);
-        }
-
-        return true;
-    }
-
-    protected $isFunc(str: string): boolean {
-
+        const s0 = line.substr(line.length - 1);
+        return s0 === ";";
     }
 
     /**
-     * 解析方法
+     * 判断是否为函数
      */
-    protected $parseFunctions(lines: string[]): number {
-        const total = lines.length;
+    protected $isFunc(line: string): boolean {
+        const s0 = line.substr(line.length - 1);
+        return s0 === "{";
+    }
 
+    /**
+     * 逐行解析数据
+     */
+    protected $parseLines(lines: string[]): void {
         while (lines.length > 0) {
-            const remain = lines.length;
-            const info: IFunctionInfo = {
-                line: "",
-                lines: [],
-                notes: []
-            };
-            info.notes = Util.readNotes(lines);
+            const notes: string[] = Util.readNotes(lines);
+            const line: string = lines.shift() as string;
 
-            const line = lines.shift() as string;
-            if (line.substr(line.length - 1) !== "{") {
-                return total - remain;
+            if (this.$isVar(line) === true) {
+                const info: IVariableInfo = {
+                    line: line,
+                    notes: notes
+                };
+                this.variables.push(info);
             }
-            info.line = line;
-
-            let ok = false;
-            while (lines.length > 0) {
-                const line = lines.shift() as string;
-                if (line === "}") {
-                    ok = true;
-                    break;
+            else if (this.$isFunc(line) === true) {
+                const info: IFunctionInfo = {
+                    line: line,
+                    lines: [],
+                    notes: notes
                 }
-                info.lines.push(line);
+                if (this.$type !== DfnTypeEnum.INTERFACE) {
+                    let ok = false;
+                    while (lines.length > 0) {
+                        const line = lines.shift() as string;
+                        if (line === "}") {
+                            ok = true;
+                            break;
+                        }
+                        info.lines.push(line);
+                    }
+                    if (ok === false) {
+                        throw Error(`函数解析失败 line:${info.line}`);
+                    }
+                    Util.sortLines(info.lines);
+                }
+                this.functions.push(info);
             }
-
-            if (ok === false) {
-                throw Error(`找不到函数结束符 line:${line}`);
+            else {
+                throw Error(`解析失败 line:${line}`);
             }
-            Util.sortLines(info.lines);
-
-            this.functions.push(info);
         }
-
-        return total;
-    }
-
-    /**
-     * 解析属性
-     */
-    protected $parseVariables(lines: string[]): number {
-        const total = lines.length;
-
-        while (lines.length > 0) {
-            const remain = lines.length;
-            const info: IVariableInfo = {
-                line: "",
-                notes: []
-            };
-            info.notes = Util.readNotes(lines);
-
-            const line = lines.shift() as string;
-
-            // 若属性结束符为分号，则为class、interface或namespace，此时应当校验结束符
-            if (this.$getVarEndFlag() === ";" && line.substr(line.length - 1) !== ";") {
-                return total - remain;
-            }
-            if (this.$isNotVar(line) === true) {
-                return total - remain;
-            }
-            info.line = line;
-
-            this.variables.push(info);
-        }
-
-        return total;
-    }
-
-    /**
-     * 判断是否为属性定义
-     */
-    private $isNotVar(line: string): boolean {
-        const a = line.indexOf(":");
-        const b = line.indexOf("(");
-        if (b > -1 && b < a) {
-            return true;
-        }
-        return false;
     }
 
     /**

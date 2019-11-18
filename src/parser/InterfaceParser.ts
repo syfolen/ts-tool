@@ -11,66 +11,53 @@ export class InterfaceParser extends DefineParser {
 
     protected $parseDefineInfomation(): void {
         const line = this.$lines.shift() as string;
+        const array = line.split(" ");
 
-        const a = line.indexOf(" interface ");
-        if (a === -1) {
+        const reg0 = array.indexOf("interface");
+        if (reg0 === -1) {
             return;
         }
 
-        const str = line.substr(a + " interface ".length);
-        const b = str.indexOf(" ");
-        if (b === -1) {
-            throw Error(`接口命名格式有误 line:${line}`);
-        }
-
-        this.name = str.substr(0, b);
-        this.$lines.pop();
-
-        const array = line.split(" ");
-        if (array.pop() !== "{") {
+        const ok = array.shift() === "export" && array.pop() === "{";
+        if (ok === false) {
             throw Error(`错误的接口定义格式 line:${line}`);
         }
-        array.splice(0, 3);
+        this.line = line;
+
+        array.shift();
+
+        this.name = this.$removeGenericity(array.shift() as string);
+        this.$lines.pop();
 
         this.$parseParentDefination(array.slice(0));
 
         Util.sortLines(this.$lines);
-
-        const m = this.$parseVariables(this.$lines.slice(0));
-        this.$lines.splice(0, m);
-
-        const n = this.$parseFunctions(this.$lines.slice(0));
-        if (n !== this.$lines.length) {
-            throw Error(`解析终止，尚有${this.$lines.length - n}行没有解析 line:${line}`);
-        }
+        this.$parseLines(this.$lines);
 
         this.ok = true;
     }
 
     /**
-     * 解析方法
+     * 判断是否为变量
      */
-    protected $parseFunctions(lines: string[]): number {
-        const total = lines.length;
-
-        while (lines.length > 0) {
-            const remain = lines.length;
-            const info: IFunctionInfo = {
-                line: "",
-                lines: [],
-                notes: []
-            };
-            info.notes = Util.readNotes(lines);
-
-            const line = lines.shift() as string;
-            if (line.substr(line.length - 1) !== ";") {
-                return total - remain;
-            }
-            info.line = line;
-
-            this.functions.push(info);
+    protected $isVar(line: string): boolean {
+        const reg0 = line.indexOf("(");
+        if (reg0 === -1) {
+            return true;
         }
 
-        return total;
+        const reg1 = line.indexOf(":");
+        if (reg1 < reg0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 判断是否为函数
+     */
+    protected $isFunc(line: string): boolean {
+        return true;
     }
 }

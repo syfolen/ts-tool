@@ -1,4 +1,5 @@
 import { Constants } from "./Constants";
+import { FileParser } from "./parser/FileParser";
 
 export abstract class Util {
 
@@ -94,7 +95,7 @@ export abstract class Util {
                 continue;
             }
 
-            if (str.indexOf("/**") === 0) {
+            if (str.indexOf("/*") === 0) {
                 a = true;
                 continue;
             }
@@ -131,5 +132,33 @@ export abstract class Util {
         }
 
         return notes.concat(Util.readNotes(lines));
+    }
+
+    static returnFilesOfParser(files: FileParser[], parserClass: any): FileParser[] {
+        for (let i = files.length - 1; i > -1; i--) {
+            const file = files[i];
+            if (file.parser instanceof parserClass === false) {
+                files.splice(i, 1);
+            }
+        }
+
+        const names: string[] = [];
+        for (const file of files) {
+            names.push(file.parser.name);
+        }
+        names.sort();
+
+        const array: FileParser[] = [];
+        while (names.length > 0) {
+            const name = names.shift() as string;
+            for (const file of files) {
+                if (file.parser.name === name) {
+                    array.push(file);
+                    break;
+                }
+            }
+        }
+
+        return array;
     }
 }

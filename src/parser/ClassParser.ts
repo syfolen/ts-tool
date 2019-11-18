@@ -10,50 +10,33 @@ export class ClassParser extends DefineParser {
 
     protected $parseDefineInfomation(): void {
         const line = this.$lines.shift() as string;
+        const array = line.split(" ");
 
-        const a = line.indexOf(" class ");
-        if (a === -1) {
+        const reg0 = array.indexOf("class");
+        if (reg0 === -1) {
             return;
         }
 
-        const keywords: string[] = [];
-        if (line.indexOf(" abstract ") > -1) {
-            keywords.push("abstract");
-        }
-
-        const str = line.substr(a + " class ".length);
-        const b = str.indexOf(" ");
-        if (b === -1) {
-            throw Error(`类命名格式有误 line:${line}`);
-        }
-
-        this.name = this.$removeGenericity(str.substr(0, b));
-        this.$lines.pop();
-
-        const array = line.split(" ");
-        if (array.pop() !== "{") {
+        const ok = array.shift() === "export" && array.pop() === "{";
+        if (ok === false) {
             throw Error(`错误的类定义格式 line:${line}`);
         }
+        this.line = line;
 
-        if (keywords.length === 0) {
-            array.splice(0, 3);
+        const keywords: string[] = [];
+        if (array[0] === "abstract") {
+            keywords.push(array.shift() as string);
         }
-        else {
-            array.splice(0, 4);
-        }
+        array.shift();
+
+        this.name = this.$removeGenericity(array.shift() as string);
+        this.$lines.pop();
 
         this.$parseParentDefination(array.slice(0));
         this.$paserInterfaceDefination(array.slice(0));
 
         Util.sortLines(this.$lines);
-
-        const m = this.$parseVariables(this.$lines.slice(0));
-        this.$lines.splice(0, m);
-
-        const n = this.$parseFunctions(this.$lines.slice(0));
-        if (n !== this.$lines.length) {
-            throw Error(`解析终止，尚有${this.$lines.length - n}行没有解析 line:${line}`);
-        }
+        this.$parseLines(this.$lines);
 
         this.ok = true;
     }
