@@ -1,9 +1,5 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var fs_1 = __importDefault(require("fs"));
 var Util_1 = require("../Util");
 var Constants_1 = require("../Constants");
 var InterfaceParser_1 = require("../parser/InterfaceParser");
@@ -29,8 +25,8 @@ var MergeTsFile = /** @class */ (function () {
         numOfDfn = this.$mergeNamepaces(numOfDfn, files);
         this.$lines.push("}");
         this.str = this.$lines.join(Constants_1.Constants.NEWLINE);
-        var url = Util_1.Util.getAbsolutePath(dir, name + ".ts");
-        fs_1.default.writeFileSync(url, this.str);
+        // const url: string = Util.getAbsolutePath(dir, name + ".ts");
+        // fs.writeFileSync(url, this.str);
     }
     MergeTsFile.prototype.$mergeEnums = function (numOfDfn, files) {
         files = Util_1.Util.returnFilesOfParser(files.slice(0), EnumParser_1.EnumParser);

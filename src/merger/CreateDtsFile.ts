@@ -41,9 +41,9 @@ export class CreateDtsFile {
 
         this.str = this.$lines.join(Constants.NEWLINE);
 
-        const url: string = Util.getAbsolutePath(dir, name + ".d.ts");
+        // const url: string = Util.getAbsolutePath(dir, name + ".d.ts");
 
-        fs.writeFileSync(url, this.str);
+        // fs.writeFileSync(url, this.str);
     }
 
     private $mergeEnums(numOfDfn: number, files: FileParser[]): number {
@@ -153,15 +153,10 @@ export class CreateDtsFile {
             const setters: IFunctionInfo[] = [];
             for (let i = functions.length - 1; i > -1; i--) {
                 const func = functions[i];
-                const line = " " + func.line;
-
-                const reg0 = line.indexOf(" set ");
-                if (reg0 === -1) {
-                    continue;
+                if (this.$isSetter(func) === true) {
+                    setters.push(func);
+                    functions.splice(i, 1);
                 }
-
-                setters.push(func);
-                functions.splice(i, 1);
             }
 
             if (setters.length === 0) {
@@ -170,18 +165,27 @@ export class CreateDtsFile {
 
             while (setters.length > 0) {
                 const func = setters.pop() as IFunctionInfo;
-                const line = " " + func.line;
+                const s0 = this.$getSetterName(func);
 
-                const reg0 = line.indexOf(" set ");
-                if (reg0 === -1) {
-                    throw Error(`函数命名格式有误 line:${line}`);
-                }
-                const reg1 = line.indexOf("(");
-                if (reg1 === -1) {
-                    throw Error(`函数命名格式有误 line:${line}`);
-                }
+                for (let i = 0; i < functions.length; i++) {
+                    const func = functions[i];
+                    if (this.$isGetter(func) === false) {
+                        continue;
+                    }
 
-                const name = line.substring(reg0 + " set ".length, reg1);
+                    const s1 = this.$getGetterName(func);
+                    if (s0 !== s1) {
+                        continue;
+                    }
+                    functions.splice(i, 1);
+
+                    const s2 = func.line.replace("()", "");
+                    const info: IVariableInfo = {
+                        line: s2,
+                        notes: func.notes
+                    }
+                    parser.variables.push(info);
+                }
 
                 debugger;
             }
@@ -244,6 +248,50 @@ export class CreateDtsFile {
         }
 
         return numOfDfn;
+    }
+
+    private $isSetter(func: IFunctionInfo): boolean {
+        const s0 = " " + func.line;
+        const reg0 = s0.indexOf(" set ");
+        return reg0 > -1;
+    }
+
+    private $getSetterName(func: IFunctionInfo): string {
+        const line = " " + func.line;
+
+        const reg0 = line.indexOf(" set ");
+        if (reg0 === -1) {
+            throw Error(`函数命名格式有误 line:${line}`);
+        }
+        const reg1 = line.indexOf("(");
+        if (reg1 === -1) {
+            throw Error(`函数命名格式有误 line:${line}`);
+        }
+
+        const s0 = line.substring(reg0 + " set ".length, reg1);
+        return s0;
+    }
+
+    private $isGetter(func: IFunctionInfo): boolean {
+        const s0 = " " + func.line;
+        const reg0 = s0.indexOf(" get ");
+        return reg0 > -1;
+    }
+
+    private $getGetterName(func: IFunctionInfo): string {
+        const line = " " + func.line;
+
+        const reg0 = line.indexOf(" get ");
+        if (reg0 === -1) {
+            throw Error(`函数命名格式有误 line:${line}`);
+        }
+        const reg1 = line.indexOf("(");
+        if (reg1 === -1) {
+            throw Error(`函数命名格式有误 line:${line}`);
+        }
+
+        const s0 = line.substring(reg0 + " get ".length, reg1);
+        return s0;
     }
 
     private $exportClassFunction(line: string): void {

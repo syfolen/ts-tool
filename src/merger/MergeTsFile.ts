@@ -41,8 +41,8 @@ export class MergeTsFile {
 
         this.str = this.$lines.join(Constants.NEWLINE);
 
-        const url: string = Util.getAbsolutePath(dir, name + ".ts");
-        fs.writeFileSync(url, this.str);
+        // const url: string = Util.getAbsolutePath(dir, name + ".ts");
+        // fs.writeFileSync(url, this.str);
     }
 
     private $mergeEnums(numOfDfn: number, files: FileParser[]): number {

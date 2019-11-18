@@ -1,9 +1,5 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var fs_1 = __importDefault(require("fs"));
 var Util_1 = require("../Util");
 var Constants_1 = require("../Constants");
 var InterfaceParser_1 = require("../parser/InterfaceParser");
@@ -29,8 +25,8 @@ var CreateDtsFile = /** @class */ (function () {
         numOfDfn = this.$mergeNamepaces(numOfDfn, files);
         this.$lines.push("}");
         this.str = this.$lines.join(Constants_1.Constants.NEWLINE);
-        var url = Util_1.Util.getAbsolutePath(dir, name + ".d.ts");
-        fs_1.default.writeFileSync(url, this.str);
+        // const url: string = Util.getAbsolutePath(dir, name + ".d.ts");
+        // fs.writeFileSync(url, this.str);
     }
     CreateDtsFile.prototype.$mergeEnums = function (numOfDfn, files) {
         files = Util_1.Util.returnFilesOfParser(files.slice(0), EnumParser_1.EnumParser);
@@ -135,14 +131,14 @@ var CreateDtsFile = /** @class */ (function () {
             }
             while (setters.length > 0) {
                 var func = setters.pop();
-                var line = " " + func.line;
-                var reg0 = line.indexOf(" set ");
-                if (reg0 === -1) {
-                    throw Error("\u51FD\u6570\u547D\u540D\u683C\u5F0F\u6709\u8BEF line:" + line);
-                }
-                var reg1 = line.indexOf("(");
-                if (reg1 === -1) {
-                    throw Error("\u51FD\u6570\u547D\u540D\u683C\u5F0F\u6709\u8BEF line:" + line);
+                var s0 = this.$getSetterName(func);
+                for (var i_2 = 0; i_2 < functions.length; i_2++) {
+                    var func_1 = functions[i_2];
+                    var s1 = this.$getGetterName(func_1);
+                    if (s0 !== s1) {
+                        continue;
+                    }
+                    functions.splice(i_2, 1);
                 }
                 debugger;
             }
@@ -197,6 +193,32 @@ var CreateDtsFile = /** @class */ (function () {
             }
         }
         return numOfDfn;
+    };
+    CreateDtsFile.prototype.$getSetterName = function (func) {
+        var line = " " + func.line;
+        var reg0 = line.indexOf(" set ");
+        if (reg0 === -1) {
+            throw Error("\u51FD\u6570\u547D\u540D\u683C\u5F0F\u6709\u8BEF line:" + line);
+        }
+        var reg1 = line.indexOf("(");
+        if (reg1 === -1) {
+            throw Error("\u51FD\u6570\u547D\u540D\u683C\u5F0F\u6709\u8BEF line:" + line);
+        }
+        var s0 = line.substring(reg0 + " set ".length, reg1);
+        return s0;
+    };
+    CreateDtsFile.prototype.$getGetterName = function (func) {
+        var line = " " + func.line;
+        var reg0 = line.indexOf(" get ");
+        if (reg0 === -1) {
+            throw Error("\u51FD\u6570\u547D\u540D\u683C\u5F0F\u6709\u8BEF line:" + line);
+        }
+        var reg1 = line.indexOf("(");
+        if (reg1 === -1) {
+            throw Error("\u51FD\u6570\u547D\u540D\u683C\u5F0F\u6709\u8BEF line:" + line);
+        }
+        var s0 = line.substring(reg0 + " get ".length, reg1);
+        return s0;
     };
     CreateDtsFile.prototype.$exportClassFunction = function (line) {
         var str = line;
