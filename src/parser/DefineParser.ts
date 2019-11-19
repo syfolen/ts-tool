@@ -363,7 +363,7 @@ export abstract class DefineParser {
                     reg4 = reg3;
                 }
                 else if (reg3 === -1) {
-                    reg4 = reg3;
+                    reg4 = reg2;
                 }
                 else {
                     reg4 = reg2 < reg3 ? reg2 : reg3;
