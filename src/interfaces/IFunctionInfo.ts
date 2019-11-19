@@ -1,9 +1,18 @@
+import { IArgumentInfo } from "./IArumentInfo";
 
 export interface IFunctionInfo {
 
-    line: string;
+    notes: string[];
 
     lines: string[];
 
-    notes: string[];
+    keywords: string[];
+
+    line: string;
+
+    name: string;
+
+    args: IArgumentInfo[];
+
+    ret: string;
 }

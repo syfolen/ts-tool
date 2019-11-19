@@ -40,15 +40,4 @@ export class ClassParser extends DefineParser {
 
         this.ok = true;
     }
-
-    /**
-     * 判断是否为变量
-     */
-    protected $isVar(line: string): boolean {
-        const s0 = line.substr(line.length - 1);
-        if (s0 === "{") {
-            return false;
-        }
-        return super.$isVar(line);
-    }
 }

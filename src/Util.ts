@@ -1,18 +1,19 @@
 import { Constants } from "./Constants";
 import { FileParser } from "./parser/FileParser";
+import { IVariableInfo } from "./interfaces/IVariableInfo";
 
 export abstract class Util {
 
     static getAbsolutePath(...args: string[]): string {
-        const root = args[0];
+        const s0 = args[0];
 
-        const index = root.indexOf(":");
-        if (index < 0) {
+        const reg0 = s0.indexOf(":\\");
+        if (reg0 < 0) {
             args.unshift(Constants.DIR_ROOT);
         }
 
-        const path = args.join(Constants.SEPARATOR);
-        return Util.checkSeperators(path);
+        const s1 = args.join(Constants.SEPARATOR);
+        return Util.checkSeperators(s1);
     }
 
     static checkSeperators(path: string): string {
@@ -23,11 +24,11 @@ export abstract class Util {
             seperators.push(seperators.shift() as string);
         }
 
-        const a = seperators[0];
-        const b = seperators[1];
+        const s0 = seperators[0];
+        const s1 = seperators[1];
 
-        while (path.indexOf(b) > -1) {
-            path = path.replace(b, a);
+        while (path.indexOf(s1) > -1) {
+            path = path.replace(s1, s0);
         }
 
         return path;

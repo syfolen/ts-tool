@@ -49,9 +49,9 @@ var MergeTsFile = /** @class */ (function () {
                 else {
                     this.$checkEndLine();
                 }
-                var item = vars.shift();
-                this.$exportNotes(2, item.notes);
-                this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.line);
+                // const item = vars.shift() as IFunctionInfo;
+                // this.$exportNotes(2, item.notes);
+                // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
             }
             this.$lines.push(Constants_1.Constants.TAB + "}");
         }
@@ -85,15 +85,15 @@ var MergeTsFile = /** @class */ (function () {
                     else {
                         this.$checkEndLine();
                     }
-                    var item = vars.shift();
-                    this.$exportNotes(2, item.notes);
-                    this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.line);
+                    // const item = vars.shift() as IFunctionInfo;
+                    // this.$exportNotes(2, item.notes);
+                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
                 }
                 while (funcs.length > 0) {
                     this.$checkEndLine();
                     var item = funcs.shift();
                     this.$exportNotes(2, item.notes);
-                    this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.line);
+                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
                 }
                 this.$lines.push(Constants_1.Constants.TAB + "}");
             }
@@ -136,23 +136,22 @@ var MergeTsFile = /** @class */ (function () {
                     else {
                         this.$checkEndLine();
                     }
-                    var item = vars.shift();
-                    this.$exportNotes(2, item.notes);
-                    this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.line);
+                    // const item = vars.shift() as IFunctionInfo;
+                    // this.$exportNotes(2, item.notes);
+                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
                 }
                 while (funcs.length > 0) {
                     this.$checkEndLine();
                     var item = funcs.shift();
                     this.$exportNotes(2, item.notes);
-                    this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.line);
-                    var s0 = " " + item.line;
-                    if (s0.indexOf(" abstract ") === -1) {
-                        for (var _a = 0, _b = item.lines; _a < _b.length; _a++) {
-                            var line = _b[_a];
-                            this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + Constants_1.Constants.TAB + line);
-                        }
-                        this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + "}");
-                    }
+                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                    // const s0 = " " + item.line;
+                    // if (s0.indexOf(" abstract ") === -1) {
+                    //     for (const line of item.lines) {
+                    //         this.$lines.push(`${Constants.TAB}${Constants.TAB}${Constants.TAB}${line}`);
+                    //     }
+                    //     this.$lines.push(`${Constants.TAB}${Constants.TAB}}`);
+                    // }
                 }
                 this.$lines.push(Constants_1.Constants.TAB + "}");
             }
@@ -187,15 +186,15 @@ var MergeTsFile = /** @class */ (function () {
                 else {
                     this.$checkEndLine();
                 }
-                var item = vars.shift();
-                this.$exportNotes(1, item.notes);
-                this.$lines.push("" + Constants_1.Constants.TAB + item.line);
+                // const item = vars.shift() as IFunctionInfo;
+                // this.$exportNotes(1, item.notes);
+                // this.$lines.push(`${Constants.TAB}${item.line}`);
             }
             while (funcs.length > 0) {
                 this.$checkEndLine();
                 var item = funcs.shift();
                 this.$exportNotes(1, item.notes);
-                this.$lines.push("" + Constants_1.Constants.TAB + item.line);
+                // this.$lines.push(`${Constants.TAB}${item.line}`);
                 for (var _a = 0, _b = item.lines; _a < _b.length; _a++) {
                     var line = _b[_a];
                     this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + line);

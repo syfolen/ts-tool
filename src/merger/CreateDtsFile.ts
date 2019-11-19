@@ -71,9 +71,9 @@ export class CreateDtsFile {
                 else {
                     this.$checkEndLine();
                 }
-                const item = vars.shift() as IFunctionInfo;
-                this.$exportNotes(2, item.notes);
-                this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                // const item = vars.shift() as IFunctionInfo;
+                // this.$exportNotes(2, item.notes);
+                // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
             }
 
             this.$lines.push(`${Constants.TAB}}`);
@@ -115,15 +115,15 @@ export class CreateDtsFile {
                     else {
                         this.$checkEndLine();
                     }
-                    const item = vars.shift() as IFunctionInfo;
-                    this.$exportNotes(2, item.notes);
-                    this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                    // const item = vars.shift() as IFunctionInfo;
+                    // this.$exportNotes(2, item.notes);
+                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
                 }
                 while (funcs.length > 0) {
                     this.$checkEndLine();
                     const item = funcs.shift() as IFunctionInfo;
                     this.$exportNotes(2, item.notes);
-                    this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
                 }
 
                 this.$lines.push(`${Constants.TAB}}`);
@@ -153,10 +153,10 @@ export class CreateDtsFile {
             const setters: IFunctionInfo[] = [];
             for (let i = functions.length - 1; i > -1; i--) {
                 const func = functions[i];
-                if (this.$isSetter(func) === true) {
-                    setters.push(func);
-                    functions.splice(i, 1);
-                }
+                // if (this.$isSetter(func) === true) {
+                //     setters.push(func);
+                //     functions.splice(i, 1);
+                // }
             }
 
             if (setters.length === 0) {
@@ -165,26 +165,26 @@ export class CreateDtsFile {
 
             while (setters.length > 0) {
                 const func = setters.pop() as IFunctionInfo;
-                const s0 = this.$getSetterName(func);
+                // const s0 = this.$getSetterName(func);
 
                 for (let i = 0; i < functions.length; i++) {
                     const func = functions[i];
-                    if (this.$isGetter(func) === false) {
-                        continue;
-                    }
+                    // if (this.$isGetter(func) === false) {
+                    //     continue;
+                    // }
 
-                    const s1 = this.$getGetterName(func);
-                    if (s0 !== s1) {
-                        continue;
-                    }
-                    functions.splice(i, 1);
+                    // const s1 = this.$getGetterName(func);
+                    // if (s0 !== s1) {
+                    //     continue;
+                    // }
+                    // functions.splice(i, 1);
 
-                    const s2 = func.line.replace("()", "");
-                    const info: IVariableInfo = {
-                        line: s2,
-                        notes: func.notes
-                    }
-                    parser.variables.push(info);
+                    // const s2 = func.line.replace("()", "");
+                    // const info: IVariableInfo = {
+                    //     line: s2,
+                    //     notes: func.notes
+                    // }
+                    // parser.variables.push(info);
                 }
 
                 debugger;
@@ -223,15 +223,15 @@ export class CreateDtsFile {
                     else {
                         this.$checkEndLine();
                     }
-                    const item = vars.shift() as IFunctionInfo;
-                    this.$exportNotes(2, item.notes);
-                    this.$exportClassVariable(item.line);
+                    // const item = vars.shift() as IFunctionInfo;
+                    // this.$exportNotes(2, item.notes);
+                    // this.$exportClassVariable(item.line);
                 }
                 while (funcs.length > 0) {
                     this.$checkEndLine();
                     const item = funcs.shift() as IFunctionInfo;
                     this.$exportNotes(2, item.notes);
-                    this.$exportClassFunction(item.line);
+                    // this.$exportClassFunction(item.line);
                     // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
                 }
 
@@ -250,49 +250,49 @@ export class CreateDtsFile {
         return numOfDfn;
     }
 
-    private $isSetter(func: IFunctionInfo): boolean {
-        const s0 = " " + func.line;
-        const reg0 = s0.indexOf(" set ");
-        return reg0 > -1;
-    }
+    // private $isSetter(func: IFunctionInfo): boolean {
+    //     const s0 = " " + func.line;
+    //     const reg0 = s0.indexOf(" set ");
+    //     return reg0 > -1;
+    // }
 
-    private $getSetterName(func: IFunctionInfo): string {
-        const line = " " + func.line;
+    // private $getSetterName(func: IFunctionInfo): string {
+    //     const line = " " + func.line;
 
-        const reg0 = line.indexOf(" set ");
-        if (reg0 === -1) {
-            throw Error(`函数命名格式有误 line:${line}`);
-        }
-        const reg1 = line.indexOf("(");
-        if (reg1 === -1) {
-            throw Error(`函数命名格式有误 line:${line}`);
-        }
+    //     const reg0 = line.indexOf(" set ");
+    //     if (reg0 === -1) {
+    //         throw Error(`函数命名格式有误 line:${line}`);
+    //     }
+    //     const reg1 = line.indexOf("(");
+    //     if (reg1 === -1) {
+    //         throw Error(`函数命名格式有误 line:${line}`);
+    //     }
 
-        const s0 = line.substring(reg0 + " set ".length, reg1);
-        return s0;
-    }
+    //     const s0 = line.substring(reg0 + " set ".length, reg1);
+    //     return s0;
+    // }
 
-    private $isGetter(func: IFunctionInfo): boolean {
-        const s0 = " " + func.line;
-        const reg0 = s0.indexOf(" get ");
-        return reg0 > -1;
-    }
+    // private $isGetter(func: IFunctionInfo): boolean {
+    //     const s0 = " " + func.line;
+    //     const reg0 = s0.indexOf(" get ");
+    //     return reg0 > -1;
+    // }
 
-    private $getGetterName(func: IFunctionInfo): string {
-        const line = " " + func.line;
+    // private $getGetterName(func: IFunctionInfo): string {
+    //     const line = " " + func.line;
 
-        const reg0 = line.indexOf(" get ");
-        if (reg0 === -1) {
-            throw Error(`函数命名格式有误 line:${line}`);
-        }
-        const reg1 = line.indexOf("(");
-        if (reg1 === -1) {
-            throw Error(`函数命名格式有误 line:${line}`);
-        }
+    //     const reg0 = line.indexOf(" get ");
+    //     if (reg0 === -1) {
+    //         throw Error(`函数命名格式有误 line:${line}`);
+    //     }
+    //     const reg1 = line.indexOf("(");
+    //     if (reg1 === -1) {
+    //         throw Error(`函数命名格式有误 line:${line}`);
+    //     }
 
-        const s0 = line.substring(reg0 + " get ".length, reg1);
-        return s0;
-    }
+    //     const s0 = line.substring(reg0 + " get ".length, reg1);
+    //     return s0;
+    // }
 
     private $exportClassFunction(line: string): void {
         let str = line;
@@ -413,15 +413,15 @@ export class CreateDtsFile {
                 else {
                     this.$checkEndLine();
                 }
-                const item = vars.shift() as IFunctionInfo;
-                this.$exportNotes(1, item.notes);
-                this.$lines.push(`${Constants.TAB}${item.line}`);
+                // const item = vars.shift() as IFunctionInfo;
+                // this.$exportNotes(1, item.notes);
+                // this.$lines.push(`${Constants.TAB}${item.line}`);
             }
             while (funcs.length > 0) {
                 this.$checkEndLine();
                 const item = funcs.shift() as IFunctionInfo;
                 this.$exportNotes(1, item.notes);
-                this.$lines.push(`${Constants.TAB}${item.line}`);
+                // this.$lines.push(`${Constants.TAB}${item.line}`);
                 for (const line of item.lines) {
                     this.$lines.push(`${Constants.TAB}${Constants.TAB}${line}`);
                 }

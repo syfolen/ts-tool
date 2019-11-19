@@ -41,12 +41,6 @@ var InterfaceParser = /** @class */ (function (_super) {
         this.$parseLines(this.$lines);
         this.ok = true;
     };
-    /**
-     * 判断是否为函数
-     */
-    InterfaceParser.prototype.$isFunc = function (line) {
-        return true;
-    };
     return InterfaceParser;
 }(DefineParser_1.DefineParser));
 exports.InterfaceParser = InterfaceParser;

@@ -70,9 +70,9 @@ export class MergeTsFile {
                 else {
                     this.$checkEndLine();
                 }
-                const item = vars.shift() as IFunctionInfo;
-                this.$exportNotes(2, item.notes);
-                this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                // const item = vars.shift() as IFunctionInfo;
+                // this.$exportNotes(2, item.notes);
+                // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
             }
 
             this.$lines.push(`${Constants.TAB}}`);
@@ -114,15 +114,15 @@ export class MergeTsFile {
                     else {
                         this.$checkEndLine();
                     }
-                    const item = vars.shift() as IFunctionInfo;
-                    this.$exportNotes(2, item.notes);
-                    this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                    // const item = vars.shift() as IFunctionInfo;
+                    // this.$exportNotes(2, item.notes);
+                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
                 }
                 while (funcs.length > 0) {
                     this.$checkEndLine();
                     const item = funcs.shift() as IFunctionInfo;
                     this.$exportNotes(2, item.notes);
-                    this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
                 }
 
                 this.$lines.push(`${Constants.TAB}}`);
@@ -173,23 +173,23 @@ export class MergeTsFile {
                     else {
                         this.$checkEndLine();
                     }
-                    const item = vars.shift() as IFunctionInfo;
-                    this.$exportNotes(2, item.notes);
-                    this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                    // const item = vars.shift() as IFunctionInfo;
+                    // this.$exportNotes(2, item.notes);
+                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
                 }
                 while (funcs.length > 0) {
                     this.$checkEndLine();
                     const item = funcs.shift() as IFunctionInfo;
                     this.$exportNotes(2, item.notes);
-                    this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
 
-                    const s0 = " " + item.line;
-                    if (s0.indexOf(" abstract ") === -1) {
-                        for (const line of item.lines) {
-                            this.$lines.push(`${Constants.TAB}${Constants.TAB}${Constants.TAB}${line}`);
-                        }
-                        this.$lines.push(`${Constants.TAB}${Constants.TAB}}`);
-                    }
+                    // const s0 = " " + item.line;
+                    // if (s0.indexOf(" abstract ") === -1) {
+                    //     for (const line of item.lines) {
+                    //         this.$lines.push(`${Constants.TAB}${Constants.TAB}${Constants.TAB}${line}`);
+                    //     }
+                    //     this.$lines.push(`${Constants.TAB}${Constants.TAB}}`);
+                    // }
                 }
 
                 this.$lines.push(`${Constants.TAB}}`);
@@ -230,15 +230,15 @@ export class MergeTsFile {
                 else {
                     this.$checkEndLine();
                 }
-                const item = vars.shift() as IFunctionInfo;
-                this.$exportNotes(1, item.notes);
-                this.$lines.push(`${Constants.TAB}${item.line}`);
+                // const item = vars.shift() as IFunctionInfo;
+                // this.$exportNotes(1, item.notes);
+                // this.$lines.push(`${Constants.TAB}${item.line}`);
             }
             while (funcs.length > 0) {
                 this.$checkEndLine();
                 const item = funcs.shift() as IFunctionInfo;
                 this.$exportNotes(1, item.notes);
-                this.$lines.push(`${Constants.TAB}${item.line}`);
+                // this.$lines.push(`${Constants.TAB}${item.line}`);
                 for (const line of item.lines) {
                     this.$lines.push(`${Constants.TAB}${Constants.TAB}${line}`);
                 }

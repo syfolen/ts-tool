@@ -13,14 +13,13 @@ var MakeTsFile = /** @class */ (function () {
      * @out TS文件信息输出
      */
     function MakeTsFile(dir, name, out) {
-        this.$files = out;
-        this.$makeDirs(dir, name);
+        this.$makeDirs(dir, name, out);
     }
     /**
      * @dir 目录地址
      * @name 文件名
      */
-    MakeTsFile.prototype.$makeDirs = function (dir, name) {
+    MakeTsFile.prototype.$makeDirs = function (dir, name, out) {
         var path = Util_1.Util.getAbsolutePath(dir, name);
         var dirs = fs_1.default.readdirSync(path);
         for (var _i = 0, dirs_1 = dirs; _i < dirs_1.length; _i++) {
@@ -28,18 +27,18 @@ var MakeTsFile = /** @class */ (function () {
             var url = Util_1.Util.getAbsolutePath(path, dir_1);
             var stat = fs_1.default.lstatSync(url);
             if (stat.isDirectory() === true) {
-                this.$makeDirs(path, dir_1);
+                this.$makeDirs(path, dir_1, out);
             }
             else {
-                this.$makeFile(url);
+                this.$makeFile(url, out);
             }
         }
     };
     /**
      * @url 文件地址
      */
-    MakeTsFile.prototype.$makeFile = function (url) {
-        this.$files.push(new FileParser_1.FileParser(url));
+    MakeTsFile.prototype.$makeFile = function (url, out) {
+        out.push(new FileParser_1.FileParser(url));
     };
     return MakeTsFile;
 }());

@@ -9,13 +9,13 @@ var Util = /** @class */ (function () {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        var root = args[0];
-        var index = root.indexOf(":");
-        if (index < 0) {
+        var s0 = args[0];
+        var reg0 = s0.indexOf(":\\");
+        if (reg0 < 0) {
             args.unshift(Constants_1.Constants.DIR_ROOT);
         }
-        var path = args.join(Constants_1.Constants.SEPARATOR);
-        return Util.checkSeperators(path);
+        var s1 = args.join(Constants_1.Constants.SEPARATOR);
+        return Util.checkSeperators(s1);
     };
     Util.checkSeperators = function (path) {
         var seperators = ["\\", "/"];
@@ -23,10 +23,10 @@ var Util = /** @class */ (function () {
         if (seperators[1] === Constants_1.Constants.SEPARATOR) {
             seperators.push(seperators.shift());
         }
-        var a = seperators[0];
-        var b = seperators[1];
-        while (path.indexOf(b) > -1) {
-            path = path.replace(b, a);
+        var s0 = seperators[0];
+        var s1 = seperators[1];
+        while (path.indexOf(s1) > -1) {
+            path = path.replace(s1, s0);
         }
         return path;
     };

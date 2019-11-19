@@ -49,9 +49,9 @@ var CreateDtsFile = /** @class */ (function () {
                 else {
                     this.$checkEndLine();
                 }
-                var item = vars.shift();
-                this.$exportNotes(2, item.notes);
-                this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.line);
+                // const item = vars.shift() as IFunctionInfo;
+                // this.$exportNotes(2, item.notes);
+                // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
             }
             this.$lines.push(Constants_1.Constants.TAB + "}");
         }
@@ -85,15 +85,15 @@ var CreateDtsFile = /** @class */ (function () {
                     else {
                         this.$checkEndLine();
                     }
-                    var item = vars.shift();
-                    this.$exportNotes(2, item.notes);
-                    this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.line);
+                    // const item = vars.shift() as IFunctionInfo;
+                    // this.$exportNotes(2, item.notes);
+                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
                 }
                 while (funcs.length > 0) {
                     this.$checkEndLine();
                     var item = funcs.shift();
                     this.$exportNotes(2, item.notes);
-                    this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.line);
+                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
                 }
                 this.$lines.push(Constants_1.Constants.TAB + "}");
             }
@@ -118,27 +118,33 @@ var CreateDtsFile = /** @class */ (function () {
             var setters = [];
             for (var i_1 = functions.length - 1; i_1 > -1; i_1--) {
                 var func = functions[i_1];
-                var line = " " + func.line;
-                var reg0 = line.indexOf(" set ");
-                if (reg0 === -1) {
-                    continue;
-                }
-                setters.push(func);
-                functions.splice(i_1, 1);
+                // if (this.$isSetter(func) === true) {
+                //     setters.push(func);
+                //     functions.splice(i, 1);
+                // }
             }
             if (setters.length === 0) {
                 continue;
             }
             while (setters.length > 0) {
                 var func = setters.pop();
-                var s0 = this.$getSetterName(func);
+                // const s0 = this.$getSetterName(func);
                 for (var i_2 = 0; i_2 < functions.length; i_2++) {
                     var func_1 = functions[i_2];
-                    var s1 = this.$getGetterName(func_1);
-                    if (s0 !== s1) {
-                        continue;
-                    }
-                    functions.splice(i_2, 1);
+                    // if (this.$isGetter(func) === false) {
+                    //     continue;
+                    // }
+                    // const s1 = this.$getGetterName(func);
+                    // if (s0 !== s1) {
+                    //     continue;
+                    // }
+                    // functions.splice(i, 1);
+                    // const s2 = func.line.replace("()", "");
+                    // const info: IVariableInfo = {
+                    //     line: s2,
+                    //     notes: func.notes
+                    // }
+                    // parser.variables.push(info);
                 }
                 debugger;
             }
@@ -170,15 +176,15 @@ var CreateDtsFile = /** @class */ (function () {
                     else {
                         this.$checkEndLine();
                     }
-                    var item = vars.shift();
-                    this.$exportNotes(2, item.notes);
-                    this.$exportClassVariable(item.line);
+                    // const item = vars.shift() as IFunctionInfo;
+                    // this.$exportNotes(2, item.notes);
+                    // this.$exportClassVariable(item.line);
                 }
                 while (funcs.length > 0) {
                     this.$checkEndLine();
                     var item = funcs.shift();
                     this.$exportNotes(2, item.notes);
-                    this.$exportClassFunction(item.line);
+                    // this.$exportClassFunction(item.line);
                     // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
                 }
                 this.$lines.push(Constants_1.Constants.TAB + "}");
@@ -194,32 +200,42 @@ var CreateDtsFile = /** @class */ (function () {
         }
         return numOfDfn;
     };
-    CreateDtsFile.prototype.$getSetterName = function (func) {
-        var line = " " + func.line;
-        var reg0 = line.indexOf(" set ");
-        if (reg0 === -1) {
-            throw Error("\u51FD\u6570\u547D\u540D\u683C\u5F0F\u6709\u8BEF line:" + line);
-        }
-        var reg1 = line.indexOf("(");
-        if (reg1 === -1) {
-            throw Error("\u51FD\u6570\u547D\u540D\u683C\u5F0F\u6709\u8BEF line:" + line);
-        }
-        var s0 = line.substring(reg0 + " set ".length, reg1);
-        return s0;
-    };
-    CreateDtsFile.prototype.$getGetterName = function (func) {
-        var line = " " + func.line;
-        var reg0 = line.indexOf(" get ");
-        if (reg0 === -1) {
-            throw Error("\u51FD\u6570\u547D\u540D\u683C\u5F0F\u6709\u8BEF line:" + line);
-        }
-        var reg1 = line.indexOf("(");
-        if (reg1 === -1) {
-            throw Error("\u51FD\u6570\u547D\u540D\u683C\u5F0F\u6709\u8BEF line:" + line);
-        }
-        var s0 = line.substring(reg0 + " get ".length, reg1);
-        return s0;
-    };
+    // private $isSetter(func: IFunctionInfo): boolean {
+    //     const s0 = " " + func.line;
+    //     const reg0 = s0.indexOf(" set ");
+    //     return reg0 > -1;
+    // }
+    // private $getSetterName(func: IFunctionInfo): string {
+    //     const line = " " + func.line;
+    //     const reg0 = line.indexOf(" set ");
+    //     if (reg0 === -1) {
+    //         throw Error(`函数命名格式有误 line:${line}`);
+    //     }
+    //     const reg1 = line.indexOf("(");
+    //     if (reg1 === -1) {
+    //         throw Error(`函数命名格式有误 line:${line}`);
+    //     }
+    //     const s0 = line.substring(reg0 + " set ".length, reg1);
+    //     return s0;
+    // }
+    // private $isGetter(func: IFunctionInfo): boolean {
+    //     const s0 = " " + func.line;
+    //     const reg0 = s0.indexOf(" get ");
+    //     return reg0 > -1;
+    // }
+    // private $getGetterName(func: IFunctionInfo): string {
+    //     const line = " " + func.line;
+    //     const reg0 = line.indexOf(" get ");
+    //     if (reg0 === -1) {
+    //         throw Error(`函数命名格式有误 line:${line}`);
+    //     }
+    //     const reg1 = line.indexOf("(");
+    //     if (reg1 === -1) {
+    //         throw Error(`函数命名格式有误 line:${line}`);
+    //     }
+    //     const s0 = line.substring(reg0 + " get ".length, reg1);
+    //     return s0;
+    // }
     CreateDtsFile.prototype.$exportClassFunction = function (line) {
         var str = line;
         do {
@@ -319,15 +335,15 @@ var CreateDtsFile = /** @class */ (function () {
                 else {
                     this.$checkEndLine();
                 }
-                var item = vars.shift();
-                this.$exportNotes(1, item.notes);
-                this.$lines.push("" + Constants_1.Constants.TAB + item.line);
+                // const item = vars.shift() as IFunctionInfo;
+                // this.$exportNotes(1, item.notes);
+                // this.$lines.push(`${Constants.TAB}${item.line}`);
             }
             while (funcs.length > 0) {
                 this.$checkEndLine();
                 var item = funcs.shift();
                 this.$exportNotes(1, item.notes);
-                this.$lines.push("" + Constants_1.Constants.TAB + item.line);
+                // this.$lines.push(`${Constants.TAB}${item.line}`);
                 for (var _a = 0, _b = item.lines; _a < _b.length; _a++) {
                     var line = _b[_a];
                     this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + line);

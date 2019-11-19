@@ -59,33 +59,22 @@ var FileParser = /** @class */ (function () {
     FileParser.prototype.$parseDefineInfomation = function (str) {
         this.notes = Util_1.Util.readNotes(this.$lines);
         // 必定有模块名
-        while (this.$lines.length > 0) {
-            var line = Util_1.Util.trim(this.$lines.shift());
-            if (line.indexOf("module ") !== 0) {
-                continue;
-            }
-            var str_1 = line.substr("module ".length);
-            var index_1 = str_1.indexOf(" {");
-            if (index_1 === -1) {
-                continue;
-            }
-            this.name = str_1.substr(0, index_1);
-            break;
+        var line = this.$lines.shift();
+        var s0 = line.substr(0, "module ".length);
+        if (s0 !== "module ") {
+            throw Error("\u6A21\u5757\u547D\u540D\u683C\u5F0F\u6709\u8BEF url:" + this.url);
         }
-        if (this.name === "") {
-            throw Error("\u6CA1\u6709\u627E\u5230\u6A21\u5757\u540D url:" + this.url);
-        }
-        var index = str.indexOf("module " + this.name + " {");
-        if (index === -1) {
+        var s1 = line.substring(line.length - 2);
+        if (s1 !== " {") {
             throw Error("\u6A21\u5757\u547D\u540D\u683C\u5F0F\u6709\u8BEF url:" + this.url);
         }
         // 需要去掉最后面的一个括号
         while (this.$lines.length > 0) {
-            var line = Util_1.Util.trim(this.$lines.pop());
-            if (line === "") {
+            var s2 = Util_1.Util.trim(this.$lines.pop());
+            if (s2 === "") {
                 continue;
             }
-            if (line === "}") {
+            if (s2 === "}") {
                 break;
             }
         }

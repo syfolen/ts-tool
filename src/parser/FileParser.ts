@@ -85,36 +85,25 @@ export class FileParser {
         this.notes = Util.readNotes(this.$lines);
 
         // 必定有模块名
-        while (this.$lines.length > 0) {
-            const line = Util.trim(this.$lines.shift() as string);
-            if (line.indexOf("module ") !== 0) {
-                continue;
-            }
-            const str = line.substr("module ".length);
-            const index = str.indexOf(" {");
-            if (index === -1) {
-                continue;
-            }
-            this.name = str.substr(0, index);
-            break;
+        const line = this.$lines.shift() as string;
+
+        const s0 = line.substr(0, "module ".length);
+        if (s0 !== "module ") {
+            throw Error(`模块命名格式有误 url:${this.url}`);
         }
 
-        if (this.name === "") {
-            throw Error(`没有找到模块名 url:${this.url}`);
-        }
-
-        const index = str.indexOf(`module ${this.name} {`);
-        if (index === -1) {
+        const s1 = line.substring(line.length - 2);
+        if (s1 !== " {") {
             throw Error(`模块命名格式有误 url:${this.url}`);
         }
 
         // 需要去掉最后面的一个括号
         while (this.$lines.length > 0) {
-            const line = Util.trim(this.$lines.pop() as string);
-            if (line === "") {
+            const s2 = Util.trim(this.$lines.pop() as string);
+            if (s2 === "") {
                 continue;
             }
-            if (line === "}") {
+            if (s2 === "}") {
                 break;
             }
         }

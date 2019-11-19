@@ -36,11 +36,4 @@ export class InterfaceParser extends DefineParser {
 
         this.ok = true;
     }
-
-    /**
-     * 判断是否为函数
-     */
-    protected $isFunc(line: string): boolean {
-        return true;
-    }
 }
