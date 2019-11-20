@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Constants_1 = require("../Constants");
-var Util_1 = require("../Util");
+var Constants_1 = require("../utils/Constants");
+var Util_1 = require("../utils/Util");
 var DfnTypeEnum_1 = require("../interfaces/DfnTypeEnum");
+var Logger_1 = require("../utils/Logger");
 var DefineParser = /** @class */ (function () {
     function DefineParser(str, type) {
         this.$type = DfnTypeEnum_1.DfnTypeEnum.NONE;
@@ -56,6 +57,9 @@ var DefineParser = /** @class */ (function () {
      * 判断是否为变量
      */
     DefineParser.prototype.$isVar = function (line) {
+        if (line === "constructor() {") {
+            return false;
+        }
         var reg0 = line.indexOf("(");
         if (reg0 === -1) {
             return true;
@@ -81,6 +85,31 @@ var DefineParser = /** @class */ (function () {
                 var info = this.$readFunctionInfomation(lines);
                 info.notes = notes;
                 this.functions.push(info);
+            }
+        }
+        for (var _i = 0, _a = this.variables; _i < _a.length; _i++) {
+            var item = _a[_i];
+            Logger_1.Logger.log("name", item.name);
+            Logger_1.Logger.log("type", item.type);
+            Logger_1.Logger.log("value", item.value);
+            for (var _b = 0, _c = item.keywords; _b < _c.length; _b++) {
+                var a = _c[_b];
+                Logger_1.Logger.log("keywords", a);
+            }
+        }
+        for (var _d = 0, _e = this.functions; _d < _e.length; _d++) {
+            var item = _e[_d];
+            Logger_1.Logger.log("name", item.name);
+            Logger_1.Logger.log("type", item.ret);
+            for (var _f = 0, _g = item.keywords; _f < _g.length; _f++) {
+                var a = _g[_f];
+                Logger_1.Logger.log("keywords", a);
+            }
+            for (var _h = 0, _j = item.args; _h < _j.length; _h++) {
+                var a = _j[_h];
+                Logger_1.Logger.log("name", a.name);
+                Logger_1.Logger.log("type", a.type);
+                Logger_1.Logger.log("value", a.value);
             }
         }
     };
@@ -167,7 +196,8 @@ var DefineParser = /** @class */ (function () {
         var str = this.$readKeyworkds(line, info.keywords);
         info.line = line;
         this.$parseFuncInfo(str, info);
-        if (info.keywords.indexOf("abstract") === -1) {
+        var reg0 = this.$type === DfnTypeEnum_1.DfnTypeEnum.INTERFACE ? 0 : info.keywords.indexOf("abstract");
+        if (reg0 === -1) {
             var ok = false;
             while (lines.length > 0) {
                 var s5 = lines.shift();
@@ -202,8 +232,8 @@ var DefineParser = /** @class */ (function () {
         // 参数区域
         var min = 0;
         var max = 0;
-        var reg2 = out.keywords.indexOf("set");
-        var reg3 = out.keywords.indexOf("abstract");
+        var reg2 = out.name === "constructor" ? 0 : out.keywords.indexOf("set");
+        var reg3 = this.$type === DfnTypeEnum_1.DfnTypeEnum.INTERFACE ? 0 : out.keywords.indexOf("abstract");
         if (reg2 !== -1 && reg3 !== -1) {
             var reg0_1 = str.length - 2;
             if (reg0_1 < 0) {
@@ -456,10 +486,12 @@ var DefineParser = /** @class */ (function () {
         if (reg1 !== -1) {
             throw Error("\u53D8\u91CF\u89E3\u6790\u51FA\u9519 line:" + line);
         }
-        var s0 = out.name.substr(out.name.length - 1);
+        var reg6 = out.name.length - 1;
+        var s0 = out.name.substr(reg6);
         var reg2 = str.indexOf(" = ");
         var s1 = "";
         if (s0 === "?") {
+            out.name = out.name.substr(0, reg6);
             out.optional = true;
         }
         else if (reg2 > -1) {
@@ -498,12 +530,11 @@ var DefineParser = /** @class */ (function () {
                 continue;
             }
             str = str.substr(0, reg0) + " " + str.substr(reg0 + s0.length);
-            out.push(s1);
+            if (s1 !== "public") {
+                out.push(s1);
+            }
         }
-        if (out.length === 0) {
-            out.push("public");
-        }
-        var b = ["static", "readonly", "abstract", "get", "set"];
+        var b = ["static", "readonly", "abstract", "get", "set", "export", "function", "const", "let"];
         for (var _a = 0, b_1 = b; _a < b_1.length; _a++) {
             var s3 = b_1[_a];
             var s2 = " " + s3 + " ";

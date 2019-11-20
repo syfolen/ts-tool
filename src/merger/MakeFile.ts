@@ -1,5 +1,5 @@
-import { Util } from "../Util";
-import { Constants } from "../Constants";
+import { Util } from "../utils/Util";
+import { Constants } from "../utils/Constants";
 import { MergeTsFile } from "./MergeTsFile";
 import { CreateDtsFile } from "./CreateDtsFile";
 import { CopyJsLibFiles } from "./CopyJsLibFiles";

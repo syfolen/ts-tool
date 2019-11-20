@@ -1,9 +1,10 @@
-import { Constants } from "../Constants";
-import { Util } from "../Util";
+import { Constants } from "../utils/Constants";
+import { Util } from "../utils/Util";
 import { IVariableInfo } from "../interfaces/IVariableInfo";
 import { IFunctionInfo } from "../interfaces/IFunctionInfo";
 import { DfnTypeEnum } from "../interfaces/DfnTypeEnum";
 import { IArgumentInfo } from "../interfaces/IArumentInfo";
+import { Logger } from "../utils/Logger";
 
 export abstract class DefineParser {
 
@@ -85,6 +86,10 @@ export abstract class DefineParser {
      * 判断是否为变量
      */
     protected $isVar(line: string): boolean {
+        if (line === "constructor() {") {
+            return false;
+        }
+
         const reg0 = line.indexOf("(");
         if (reg0 === -1) {
             return true;
@@ -113,6 +118,26 @@ export abstract class DefineParser {
                 const info = this.$readFunctionInfomation(lines);
                 info.notes = notes;
                 this.functions.push(info);
+            }
+        }
+        for (const item of this.variables) {
+            Logger.log("name", item.name);
+            Logger.log("type", item.type);
+            Logger.log("value", item.value);
+            for (const a of item.keywords) {
+                Logger.log("keywords", a);
+            }
+        }
+        for (const item of this.functions) {
+            Logger.log("name", item.name);
+            Logger.log("type", item.ret);
+            for (const a of item.keywords) {
+                Logger.log("keywords", a);
+            }
+            for (const a of item.args) {
+                Logger.log("name", a.name);
+                Logger.log("type", a.type);
+                Logger.log("value", a.value);
             }
         }
     }
@@ -214,7 +239,8 @@ export abstract class DefineParser {
         info.line = line;
         this.$parseFuncInfo(str, info);
 
-        if (info.keywords.indexOf("abstract") === -1) {
+        const reg0 = this.$type === DfnTypeEnum.INTERFACE ? 0 : info.keywords.indexOf("abstract");
+        if (reg0 === -1) {
             let ok = false;
             while (lines.length > 0) {
                 const s5 = lines.shift() as string;
@@ -256,8 +282,8 @@ export abstract class DefineParser {
         let min = 0;
         let max = 0;
 
-        const reg2 = out.keywords.indexOf("set");
-        const reg3 = out.keywords.indexOf("abstract");
+        const reg2 = out.name === "constructor" ? 0 : out.keywords.indexOf("set");
+        const reg3 = this.$type === DfnTypeEnum.INTERFACE ? 0 : out.keywords.indexOf("abstract");
 
         if (reg2 !== -1 && reg3 !== -1) {
             const reg0 = str.length - 2;
@@ -555,11 +581,13 @@ export abstract class DefineParser {
             throw Error(`变量解析出错 line:${line}`);
         }
 
-        const s0 = out.name.substr(out.name.length - 1);
+        const reg6 = out.name.length - 1;
+        const s0 = out.name.substr(reg6);
         const reg2 = str.indexOf(" = ");
 
         let s1 = "";
         if (s0 === "?") {
+            out.name = out.name.substr(0, reg6);
             out.optional = true;
         }
         else if (reg2 > -1) {
@@ -601,13 +629,12 @@ export abstract class DefineParser {
                 continue;
             }
             str = str.substr(0, reg0) + " " + str.substr(reg0 + s0.length);
-            out.push(s1);
-        }
-        if (out.length === 0) {
-            out.push("public");
+            if (s1 !== "public") {
+                out.push(s1);
+            }
         }
 
-        const b = ["static", "readonly", "abstract", "get", "set"];
+        const b = ["static", "readonly", "abstract", "get", "set", "export", "function", "const", "let"];
         for (const s3 of b) {
             const s2 = " " + s3 + " ";
             const reg1 = str.indexOf(s2);

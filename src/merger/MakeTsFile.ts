@@ -2,7 +2,7 @@
 import fs from "fs";
 
 import { FileParser } from "../parser/FileParser";
-import { Util } from "../Util";
+import { Util } from "../utils/Util";
 
 export class MakeTsFile {
 

@@ -1,7 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var Util_1 = require("../Util");
-var Constants_1 = require("../Constants");
+var fs_1 = __importDefault(require("fs"));
+var Util_1 = require("../utils/Util");
+var Constants_1 = require("../utils/Constants");
 var InterfaceParser_1 = require("../parser/InterfaceParser");
 var ClassParser_1 = require("../parser/ClassParser");
 var EnumParser_1 = require("../parser/EnumParser");
@@ -25,8 +29,8 @@ var CreateDtsFile = /** @class */ (function () {
         numOfDfn = this.$mergeNamepaces(numOfDfn, files);
         this.$lines.push("}");
         this.str = this.$lines.join(Constants_1.Constants.NEWLINE);
-        // const url: string = Util.getAbsolutePath(dir, name + ".d.ts");
-        // fs.writeFileSync(url, this.str);
+        var url = Util_1.Util.getAbsolutePath(dir, name + ".d.ts");
+        fs_1.default.writeFileSync(url, this.str);
     }
     CreateDtsFile.prototype.$mergeEnums = function (numOfDfn, files) {
         files = Util_1.Util.returnFilesOfParser(files.slice(0), EnumParser_1.EnumParser);
@@ -49,9 +53,10 @@ var CreateDtsFile = /** @class */ (function () {
                 else {
                     this.$checkEndLine();
                 }
-                // const item = vars.shift() as IFunctionInfo;
-                // this.$exportNotes(2, item.notes);
-                // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                var item = vars.shift();
+                this.$exportNotes(2, item.notes);
+                var s0 = vars.length === 0 ? "" : ",";
+                this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.name + s0);
             }
             this.$lines.push(Constants_1.Constants.TAB + "}");
         }
@@ -85,15 +90,15 @@ var CreateDtsFile = /** @class */ (function () {
                     else {
                         this.$checkEndLine();
                     }
-                    // const item = vars.shift() as IFunctionInfo;
-                    // this.$exportNotes(2, item.notes);
-                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                    var item = vars.shift();
+                    this.$exportNotes(2, item.notes);
+                    this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.lines[0]);
                 }
                 while (funcs.length > 0) {
                     this.$checkEndLine();
                     var item = funcs.shift();
                     this.$exportNotes(2, item.notes);
-                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                    this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.line);
                 }
                 this.$lines.push(Constants_1.Constants.TAB + "}");
             }
@@ -110,46 +115,6 @@ var CreateDtsFile = /** @class */ (function () {
     };
     CreateDtsFile.prototype.$mergeClasses = function (numOfDfn, files) {
         files = Util_1.Util.returnFilesOfParser(files.slice(0), ClassParser_1.ClassParser);
-        for (var i = files.length - 1; i > -1; i--) {
-            var file = files[i];
-            var parser = file.parser;
-            var functions = parser.functions;
-            // 同时拥有get和set的方法应当视为属性
-            var setters = [];
-            for (var i_1 = functions.length - 1; i_1 > -1; i_1--) {
-                var func = functions[i_1];
-                // if (this.$isSetter(func) === true) {
-                //     setters.push(func);
-                //     functions.splice(i, 1);
-                // }
-            }
-            if (setters.length === 0) {
-                continue;
-            }
-            while (setters.length > 0) {
-                var func = setters.pop();
-                // const s0 = this.$getSetterName(func);
-                for (var i_2 = 0; i_2 < functions.length; i_2++) {
-                    var func_1 = functions[i_2];
-                    // if (this.$isGetter(func) === false) {
-                    //     continue;
-                    // }
-                    // const s1 = this.$getGetterName(func);
-                    // if (s0 !== s1) {
-                    //     continue;
-                    // }
-                    // functions.splice(i, 1);
-                    // const s2 = func.line.replace("()", "");
-                    // const info: IVariableInfo = {
-                    //     line: s2,
-                    //     notes: func.notes
-                    // }
-                    // parser.variables.push(info);
-                }
-                debugger;
-            }
-            debugger;
-        }
         while (files.length > 0) {
             var array = [];
             for (var _i = 0, files_4 = files; _i < files_4.length; _i++) {
@@ -168,6 +133,47 @@ var CreateDtsFile = /** @class */ (function () {
                 this.$exportClassName(parser);
                 var vars = parser.variables.slice(0);
                 var funcs = parser.functions.slice(0);
+                // 将寄存器方法转化为变量
+                var a = [];
+                for (var _a = 0, funcs_1 = funcs; _a < funcs_1.length; _a++) {
+                    var func = funcs_1[_a];
+                    if (func.keywords.indexOf("set") !== -1) {
+                        a.push(func);
+                    }
+                }
+                while (a.length > 0) {
+                    var b = a.pop();
+                    for (var i = funcs.length - 1; i > -1; i--) {
+                        var func = funcs[i];
+                        if (func === b) {
+                            continue;
+                        }
+                        if (func.name !== b.name) {
+                            continue;
+                        }
+                        funcs.splice(i, 1);
+                        var info = {
+                            notes: func.notes,
+                            lines: func.lines,
+                            keywords: func.keywords,
+                            name: func.name,
+                            type: func.ret,
+                            optional: false,
+                            value: ""
+                        };
+                        var reg0_1 = info.keywords.indexOf("get");
+                        if (reg0_1 === -1) {
+                            throw Error("\u8BD5\u56FE\u5C06\u5BC4\u5B58\u5668\u8F6C\u5316\u4E3A\u53D8\u91CF\uFF0C\u4F46\u5374\u6CA1\u6709\u627E\u5230get\u5173\u952E\u5B57");
+                        }
+                        info.keywords.splice(reg0_1, 1);
+                        vars.push(info);
+                    }
+                    var reg0 = funcs.indexOf(b);
+                    if (reg0 === -1) {
+                        throw Error("\u610F\u5916\u7684\u7D22\u5F15 reg0:" + reg0);
+                    }
+                    funcs.splice(reg0, 1);
+                }
                 var firstLine = true;
                 while (vars.length > 0) {
                     if (firstLine === true) {
@@ -176,16 +182,37 @@ var CreateDtsFile = /** @class */ (function () {
                     else {
                         this.$checkEndLine();
                     }
-                    // const item = vars.shift() as IFunctionInfo;
-                    // this.$exportNotes(2, item.notes);
-                    // this.$exportClassVariable(item.line);
+                    var item = vars.shift();
+                    this.$exportNotes(2, item.notes);
+                    var s0 = item.keywords.length === 0 ? "" : item.keywords.join(" ") + " ";
+                    var s1 = "" + s0 + item.name + ": " + item.type + ";";
+                    this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + s1);
                 }
                 while (funcs.length > 0) {
                     this.$checkEndLine();
                     var item = funcs.shift();
                     this.$exportNotes(2, item.notes);
-                    // this.$exportClassFunction(item.line);
-                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                    var args = [];
+                    for (var _b = 0, _c = item.args; _b < _c.length; _b++) {
+                        var arg = _c[_b];
+                        var s0 = arg.optional === false ? "" : "?";
+                        var s1 = "" + arg.name + s0 + ":" + arg.type;
+                        args.push(s1);
+                    }
+                    var s2 = item.name === "constructor" ? "" : ": " + item.ret;
+                    var reg0 = item.keywords.indexOf("get");
+                    if (reg0 !== -1) {
+                        item.keywords[reg0] = "readonly";
+                    }
+                    var s3 = item.keywords.length === 0 ? "" : item.keywords.join(" ") + " ";
+                    var s4 = void 0;
+                    if (reg0 !== -1) {
+                        s4 = "" + s3 + item.name + s2 + ";";
+                    }
+                    else {
+                        s4 = "" + s3 + item.name + "(" + args.join(", ") + ")" + s2 + ";";
+                    }
+                    this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + s4);
                 }
                 this.$lines.push(Constants_1.Constants.TAB + "}");
             }
@@ -199,121 +226,6 @@ var CreateDtsFile = /** @class */ (function () {
             }
         }
         return numOfDfn;
-    };
-    // private $isSetter(func: IFunctionInfo): boolean {
-    //     const s0 = " " + func.line;
-    //     const reg0 = s0.indexOf(" set ");
-    //     return reg0 > -1;
-    // }
-    // private $getSetterName(func: IFunctionInfo): string {
-    //     const line = " " + func.line;
-    //     const reg0 = line.indexOf(" set ");
-    //     if (reg0 === -1) {
-    //         throw Error(`函数命名格式有误 line:${line}`);
-    //     }
-    //     const reg1 = line.indexOf("(");
-    //     if (reg1 === -1) {
-    //         throw Error(`函数命名格式有误 line:${line}`);
-    //     }
-    //     const s0 = line.substring(reg0 + " set ".length, reg1);
-    //     return s0;
-    // }
-    // private $isGetter(func: IFunctionInfo): boolean {
-    //     const s0 = " " + func.line;
-    //     const reg0 = s0.indexOf(" get ");
-    //     return reg0 > -1;
-    // }
-    // private $getGetterName(func: IFunctionInfo): string {
-    //     const line = " " + func.line;
-    //     const reg0 = line.indexOf(" get ");
-    //     if (reg0 === -1) {
-    //         throw Error(`函数命名格式有误 line:${line}`);
-    //     }
-    //     const reg1 = line.indexOf("(");
-    //     if (reg1 === -1) {
-    //         throw Error(`函数命名格式有误 line:${line}`);
-    //     }
-    //     const s0 = line.substring(reg0 + " get ".length, reg1);
-    //     return s0;
-    // }
-    CreateDtsFile.prototype.$exportClassFunction = function (line) {
-        var str = line;
-        do {
-            var reg0 = str.indexOf(" = ");
-            if (reg0 === -1) {
-                break;
-            }
-            var reg1 = str.indexOf("(");
-            if (reg1 === -1) {
-                throw Error("\u51FD\u6570\u5B9A\u4E49\u7684\u683C\u5F0F\u6709\u8BEF line:" + line);
-            }
-            reg1 += 1;
-            var s9 = str.substr(0, reg1);
-            var reg9 = -1;
-            var ok = false;
-            while (ok === false) {
-                var reg2 = str.indexOf(", ", reg1);
-                if (reg2 === -1) {
-                    reg2 = str.indexOf("): ");
-                    if (reg2 === -1) {
-                        reg2 = str.indexOf(") {");
-                        if (reg2 === -1) {
-                            throw Error("\u51FD\u6570\u5B9A\u4E49\u7684\u683C\u5F0F\u6709\u8BEF line:" + line);
-                        }
-                        else {
-                            ok = true;
-                            reg9 = reg2 + 3;
-                        }
-                    }
-                    else {
-                        ok = true;
-                        reg9 = reg2 + 3;
-                    }
-                }
-                else {
-                    reg9 = reg2 + 2;
-                }
-                var s0 = str.substring(reg1, reg2);
-                var reg3 = s0.indexOf(" = ");
-                if (reg3 === -1) {
-                    s9 += str.substring(reg1, reg9);
-                    reg1 = reg9;
-                    continue;
-                }
-                var s1 = s0.substr(0, reg3);
-                var reg4 = s1.indexOf(": ");
-                if (reg4 === -1) {
-                    throw Error("\u51FD\u6570\u5B9A\u4E49\u7684\u683C\u5F0F\u6709\u8BEF line:" + line);
-                }
-                var name_1 = s1.substr(0, reg4);
-                var reg5 = reg4 + 2;
-                var type = s1.substring(reg5, reg3);
-                var s2 = str.substring(reg2, reg9);
-                s9 += name_1 + "?: " + type + s2;
-                reg1 = reg9;
-                if (ok === true) {
-                    var s3_1 = str.substring(reg9);
-                    s9 += s3_1;
-                }
-            }
-            str = s9;
-        } while (false);
-        var s3 = str.substr(str.length - 1);
-        if (s3 === "{") {
-            str = str.substr(0, str.length - 2) + ";";
-        }
-        this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + str);
-    };
-    CreateDtsFile.prototype.$exportClassVariable = function (line) {
-        var reg0 = line.indexOf(" = ");
-        var s0;
-        if (reg0 === -1) {
-            s0 = line;
-        }
-        else {
-            s0 = line.substr(0, reg0) + ";";
-        }
-        // this.$lines.push(`${Constants.TAB}${Constants.TAB}${s0}`);
     };
     CreateDtsFile.prototype.$mergeNamepaces = function (numOfDfn, files) {
         files = Util_1.Util.returnFilesOfParser(files.slice(0), NamespaceParser_1.NamespaceParser);
@@ -335,50 +247,72 @@ var CreateDtsFile = /** @class */ (function () {
                 else {
                     this.$checkEndLine();
                 }
-                // const item = vars.shift() as IFunctionInfo;
-                // this.$exportNotes(1, item.notes);
-                // this.$lines.push(`${Constants.TAB}${item.line}`);
+                var item = vars.shift();
+                this.$exportNotes(1, item.notes);
+                if (item.keywords.shift() !== "export") {
+                    throw Error("\u5199\u5165.d.ts\u6587\u4EF6\u4E2D\u7684\u53D8\u91CF\u5FC5\u987B\u58F0\u660E\u4E3Aexport");
+                }
+                var s0 = item.keywords.join(" ") + " " + item.name + ": " + item.type + ";";
+                this.$lines.push("" + Constants_1.Constants.TAB + s0);
             }
             while (funcs.length > 0) {
                 this.$checkEndLine();
                 var item = funcs.shift();
                 this.$exportNotes(1, item.notes);
-                // this.$lines.push(`${Constants.TAB}${item.line}`);
-                for (var _a = 0, _b = item.lines; _a < _b.length; _a++) {
-                    var line = _b[_a];
-                    this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + line);
+                if (item.keywords.shift() !== "export") {
+                    throw Error("\u5199\u5165.d.ts\u6587\u4EF6\u4E2D\u7684\u51FD\u6570\u5FC5\u987B\u58F0\u660E\u4E3Aexport");
                 }
-                this.$lines.push(Constants_1.Constants.TAB + "}");
+                var args = [];
+                for (var _a = 0, _b = item.args; _a < _b.length; _a++) {
+                    var arg = _b[_a];
+                    var s0 = arg.optional === false ? "" : "?";
+                    var s1 = "" + arg.name + s0 + ":" + arg.type;
+                    args.push(s1);
+                }
+                var s2 = item.keywords.join(" ") + " " + item.name + "(" + args.join(", ") + "): " + item.ret + ";";
+                this.$lines.push("" + Constants_1.Constants.TAB + s2);
             }
         }
         return numOfDfn;
     };
     CreateDtsFile.prototype.$exportEnumName = function (parser) {
-        var line = "export enum " + parser.name + " {";
+        var line = "enum " + parser.name + " {";
         this.$lines.push("" + Constants_1.Constants.TAB + line);
     };
     CreateDtsFile.prototype.$exportClassName = function (parser) {
-        this.$lines.push("" + Constants_1.Constants.TAB + parser.line);
+        var s0 = parser.line;
+        var reg0 = s0.indexOf("export ");
+        if (reg0 === -1) {
+            throw Error("\u5199\u5165.d.ts\u6587\u4EF6\u4E2D\u7684\u7C7B\u5FC5\u987B\u58F0\u660E\u4E3Aexport");
+        }
+        var s1 = s0.substr("export ".length);
+        this.$lines.push("" + Constants_1.Constants.TAB + s1);
     };
     CreateDtsFile.prototype.$exportInterfaceName = function (parser) {
-        this.$lines.push("" + Constants_1.Constants.TAB + parser.line);
+        var s0 = parser.line;
+        var reg0 = s0.indexOf("export ");
+        if (reg0 === -1) {
+            throw Error("\u5199\u5165.d.ts\u6587\u4EF6\u4E2D\u7684\u63A5\u53E3\u5FC5\u987B\u58F0\u660E\u4E3Aexport");
+        }
+        var s1 = s0.substr("export ".length);
+        this.$lines.push("" + Constants_1.Constants.TAB + s1);
     };
     CreateDtsFile.prototype.$notYet = function (parser) {
         for (var _i = 0, _a = parser.parents; _i < _a.length; _i++) {
-            var name_2 = _a[_i];
-            if (this.$nameList.indexOf(name_2) === -1) {
+            var name_1 = _a[_i];
+            if (this.$nameList.indexOf(name_1) === -1) {
                 continue;
             }
-            if (this.$doneList.indexOf(name_2) === -1) {
+            if (this.$doneList.indexOf(name_1) === -1) {
                 return true;
             }
         }
         for (var _b = 0, _c = parser.interfaces; _b < _c.length; _b++) {
-            var name_3 = _c[_b];
-            if (this.$nameList.indexOf(name_3) === -1) {
+            var name_2 = _c[_b];
+            if (this.$nameList.indexOf(name_2) === -1) {
                 continue;
             }
-            if (this.$doneList.indexOf(name_3) === -1) {
+            if (this.$doneList.indexOf(name_2) === -1) {
                 return true;
             }
         }

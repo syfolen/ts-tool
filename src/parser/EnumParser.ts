@@ -1,6 +1,7 @@
 import { DefineParser } from "./DefineParser";
-import { Util } from "../Util";
+import { Util } from "../utils/Util";
 import { DfnTypeEnum } from "../interfaces/DfnTypeEnum";
+import { IVariableInfo } from "../interfaces/IVariableInfo";
 
 export class EnumParser extends DefineParser {
 
@@ -37,5 +38,25 @@ export class EnumParser extends DefineParser {
      */
     protected $isVar(line: string): boolean {
         return true;
+    }
+
+    /**
+     * 解析变量信息
+     */
+    protected $parserVarInfo(str: string, out: IVariableInfo): void {
+        const reg0 = str.indexOf(",");
+        if (reg0 !== -1) {
+            str = str.substr(0, reg0);
+        }
+
+        const reg1 = str.indexOf(" = ");
+        if (reg1 === -1) {
+            out.name = str;
+        }
+        else {
+            out.name = str.substr(0, reg1);
+            out.value = str.substr(reg1 + 3);
+            out.optional = true;
+        }
     }
 }

@@ -14,7 +14,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var DefineParser_1 = require("./DefineParser");
-var Util_1 = require("../Util");
+var Util_1 = require("../utils/Util");
 var DfnTypeEnum_1 = require("../interfaces/DfnTypeEnum");
 var EnumParser = /** @class */ (function (_super) {
     __extends(EnumParser, _super);
@@ -44,6 +44,24 @@ var EnumParser = /** @class */ (function (_super) {
      */
     EnumParser.prototype.$isVar = function (line) {
         return true;
+    };
+    /**
+     * 解析变量信息
+     */
+    EnumParser.prototype.$parserVarInfo = function (str, out) {
+        var reg0 = str.indexOf(",");
+        if (reg0 !== -1) {
+            str = str.substr(0, reg0);
+        }
+        var reg1 = str.indexOf(" = ");
+        if (reg1 === -1) {
+            out.name = str;
+        }
+        else {
+            out.name = str.substr(0, reg1);
+            out.value = str.substr(reg1 + 3);
+            out.optional = true;
+        }
     };
     return EnumParser;
 }(DefineParser_1.DefineParser));

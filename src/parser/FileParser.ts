@@ -1,7 +1,7 @@
 
 import fs from "fs";
-import { Constants } from "../Constants";
-import { Util } from "../Util";
+import { Constants } from "../utils/Constants";
+import { Util } from "../utils/Util";
 import { ClassParser } from "./ClassParser";
 import { EnumParser } from "./EnumParser";
 import { DefineParser } from "./DefineParser";

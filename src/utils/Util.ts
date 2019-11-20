@@ -1,6 +1,6 @@
 import { Constants } from "./Constants";
-import { FileParser } from "./parser/FileParser";
-import { IVariableInfo } from "./interfaces/IVariableInfo";
+import { FileParser } from "../parser/FileParser";
+import { IVariableInfo } from "../interfaces/IVariableInfo";
 
 export abstract class Util {
 

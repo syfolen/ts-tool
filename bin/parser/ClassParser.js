@@ -14,7 +14,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var DefineParser_1 = require("./DefineParser");
-var Util_1 = require("../Util");
+var Util_1 = require("../utils/Util");
 var DfnTypeEnum_1 = require("../interfaces/DfnTypeEnum");
 var ClassParser = /** @class */ (function (_super) {
     __extends(ClassParser, _super);

@@ -1,5 +1,5 @@
 import { DefineParser } from "./DefineParser";
-import { Util } from "../Util";
+import { Util } from "../utils/Util";
 import { DfnTypeEnum } from "../interfaces/DfnTypeEnum";
 
 export class ClassParser extends DefineParser {

@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = __importDefault(require("fs"));
-var Constants_1 = require("../Constants");
-var Util_1 = require("../Util");
+var Constants_1 = require("../utils/Constants");
+var Util_1 = require("../utils/Util");
 var ClassParser_1 = require("./ClassParser");
 var EnumParser_1 = require("./EnumParser");
 var InterfaceParser_1 = require("./InterfaceParser");

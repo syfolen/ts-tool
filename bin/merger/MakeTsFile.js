@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = __importDefault(require("fs"));
 var FileParser_1 = require("../parser/FileParser");
-var Util_1 = require("../Util");
+var Util_1 = require("../utils/Util");
 var MakeTsFile = /** @class */ (function () {
     /**
      * @dir 项目目录

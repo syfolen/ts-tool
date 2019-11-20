@@ -2,8 +2,8 @@
 import fs from "fs";
 
 import { FileParser } from "../parser/FileParser";
-import { Util } from "../Util";
-import { Constants } from "../Constants";
+import { Util } from "../utils/Util";
+import { Constants } from "../utils/Constants";
 import { InterfaceParser } from "../parser/InterfaceParser";
 import { ClassParser } from "../parser/ClassParser";
 import { EnumParser } from "../parser/EnumParser";
@@ -41,8 +41,8 @@ export class MergeTsFile {
 
         this.str = this.$lines.join(Constants.NEWLINE);
 
-        // const url: string = Util.getAbsolutePath(dir, name + ".ts");
-        // fs.writeFileSync(url, this.str);
+        const url: string = Util.getAbsolutePath(dir, name + ".ts");
+        fs.writeFileSync(url, this.str);
     }
 
     private $mergeEnums(numOfDfn: number, files: FileParser[]): number {
@@ -70,9 +70,9 @@ export class MergeTsFile {
                 else {
                     this.$checkEndLine();
                 }
-                // const item = vars.shift() as IFunctionInfo;
-                // this.$exportNotes(2, item.notes);
-                // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                const item = vars.shift() as IVariableInfo;
+                this.$exportNotes(2, item.notes);
+                this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.lines[0]}`);
             }
 
             this.$lines.push(`${Constants.TAB}}`);
@@ -114,15 +114,15 @@ export class MergeTsFile {
                     else {
                         this.$checkEndLine();
                     }
-                    // const item = vars.shift() as IFunctionInfo;
-                    // this.$exportNotes(2, item.notes);
-                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                    const item = vars.shift() as IVariableInfo;
+                    this.$exportNotes(2, item.notes);
+                    this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.lines[0]}`);
                 }
                 while (funcs.length > 0) {
                     this.$checkEndLine();
                     const item = funcs.shift() as IFunctionInfo;
                     this.$exportNotes(2, item.notes);
-                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                    this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
                 }
 
                 this.$lines.push(`${Constants.TAB}}`);
@@ -173,23 +173,23 @@ export class MergeTsFile {
                     else {
                         this.$checkEndLine();
                     }
-                    // const item = vars.shift() as IFunctionInfo;
-                    // this.$exportNotes(2, item.notes);
-                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                    const item = vars.shift() as IVariableInfo;
+                    this.$exportNotes(2, item.notes);
+                    for (const line of item.lines) {
+                        this.$lines.push(`${Constants.TAB}${Constants.TAB}${line}`);
+                    }
                 }
                 while (funcs.length > 0) {
                     this.$checkEndLine();
                     const item = funcs.shift() as IFunctionInfo;
                     this.$exportNotes(2, item.notes);
-                    // this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
-
-                    // const s0 = " " + item.line;
-                    // if (s0.indexOf(" abstract ") === -1) {
-                    //     for (const line of item.lines) {
-                    //         this.$lines.push(`${Constants.TAB}${Constants.TAB}${Constants.TAB}${line}`);
-                    //     }
-                    //     this.$lines.push(`${Constants.TAB}${Constants.TAB}}`);
-                    // }
+                    this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                    if (item.keywords.indexOf("abstract") === -1) {
+                        for (const line of item.lines) {
+                            this.$lines.push(`${Constants.TAB}${Constants.TAB}${Constants.TAB}${line}`);
+                        }
+                        this.$lines.push(`${Constants.TAB}${Constants.TAB}}`);
+                    }
                 }
 
                 this.$lines.push(`${Constants.TAB}}`);
@@ -230,15 +230,17 @@ export class MergeTsFile {
                 else {
                     this.$checkEndLine();
                 }
-                // const item = vars.shift() as IFunctionInfo;
-                // this.$exportNotes(1, item.notes);
-                // this.$lines.push(`${Constants.TAB}${item.line}`);
+                const item = vars.shift() as IVariableInfo;
+                this.$exportNotes(1, item.notes);
+                for (const line of item.lines) {
+                    this.$lines.push(`${Constants.TAB}${line}`);
+                }
             }
             while (funcs.length > 0) {
                 this.$checkEndLine();
                 const item = funcs.shift() as IFunctionInfo;
                 this.$exportNotes(1, item.notes);
-                // this.$lines.push(`${Constants.TAB}${item.line}`);
+                this.$lines.push(`${Constants.TAB}${item.line}`);
                 for (const line of item.lines) {
                     this.$lines.push(`${Constants.TAB}${Constants.TAB}${line}`);
                 }
