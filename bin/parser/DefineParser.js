@@ -468,7 +468,14 @@ var DefineParser = /** @class */ (function () {
             }
             info.lines.unshift(line);
         } while (false);
-        this.$parserVarInfo(str, info);
+        var reg1 = str.length - 1;
+        var s3 = str.substr(reg1);
+        if (s3 !== ";") {
+            this.$parserVarInfo(str, info);
+        }
+        else {
+            this.$parserVarInfo(str.substr(0, reg1), info);
+        }
         return info;
     };
     /**

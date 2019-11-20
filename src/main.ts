@@ -10,14 +10,14 @@ main();
  * 入口函数
  */
 function main() {
-    new MakeFile("test");
-    new MakeFile("puremvc");
+    // new MakeFile("test");
+    // new MakeFile("puremvc");
     new MakeFile("suncom");
     new MakeFile("suncore");
     new MakeFile("sunui");
-    new MakeFile("sunnet");
+    // new MakeFile("sunnet");
     new MakeFile("world2d");
-    new MakeFile("quadtree");
+    // new MakeFile("quadtree");
     Logger.output("name");
     Logger.output("type");
     Logger.output("value");
@@ -29,5 +29,6 @@ function main() {
  */
 function defineCompileRoot(): void {
     const args = process.argv.slice(2);
-    Constants.DIR_ROOT = args[0] || "E:\\work\\laya\\1.x";
+    // Constants.DIR_ROOT = args[0] || "E:\\work\\laya\\1.x";
+    Constants.DIR_ROOT = args[0] || "D:\\Project\\laya\\1.x";
 }
