@@ -11,6 +11,7 @@ import { DefineParser } from "../parser/DefineParser";
 import { IVariableInfo } from "../interfaces/IVariableInfo";
 import { IFunctionInfo } from "../interfaces/IFunctionInfo";
 import { NamespaceParser } from "../parser/NamespaceParser";
+import { FileManager } from "../utils/FileManager";
 
 export class MergeTsFile {
 
@@ -29,7 +30,12 @@ export class MergeTsFile {
             this.$nameList.push(file.parser.name);
         }
 
-        this.$lines.push(`module ${name} {`);
+        if (FileManager.isInPack(name) === false) {
+            this.$lines.push(`module ${name} {`);
+        }
+        else {
+            this.$lines.push(`namespace ${name} {`);
+        }
 
         let numOfDfn = 0;
         numOfDfn = this.$mergeEnums(numOfDfn, files);
@@ -40,9 +46,7 @@ export class MergeTsFile {
         this.$lines.push(`}`);
 
         this.str = this.$lines.join(Constants.NEWLINE);
-
-        const url: string = Util.getAbsolutePath(dir, name + ".ts");
-        fs.writeFileSync(url, this.str);
+        FileManager.put(name, "ts", this.str);
     }
 
     private $mergeEnums(numOfDfn: number, files: FileParser[]): number {
@@ -302,11 +306,16 @@ export class MergeTsFile {
             notes.push(str);
         }
 
-        this.$lines.push(`${tabs}/**`);
-        for (const note of notes) {
-            this.$lines.push(`${tabs} * ${note}`);
+        if (notes.length > 0) {
+            this.$lines.push(`${tabs}/**`);
+            for (const note of notes) {
+                this.$lines.push(`${tabs} * ${note}`);
+            }
+            this.$lines.push(`${tabs} */`);
         }
-        this.$lines.push(`${tabs} */`);
+        else {
+            this.$checkEndLine();
+        }
 
         if (str === "export") {
             notes.push(str);

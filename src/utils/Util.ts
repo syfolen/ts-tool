@@ -162,4 +162,16 @@ export abstract class Util {
 
         return array;
     }
+
+    /**
+     * 根据注释的最后一行是否为export来判断是否需要输出
+     */
+    static needExport(notes: string[]): boolean {
+        if (notes.length === 0) {
+            return false;
+        }
+        const reg0 = notes.length - 1;
+        const s0 = notes[reg0];
+        return s0 === "export";
+    }
 }

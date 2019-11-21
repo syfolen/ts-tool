@@ -11,10 +11,11 @@ import { DefineParser } from "../parser/DefineParser";
 import { IVariableInfo } from "../interfaces/IVariableInfo";
 import { IFunctionInfo } from "../interfaces/IFunctionInfo";
 import { NamespaceParser } from "../parser/NamespaceParser";
+import { FileManager } from "../utils/FileManager";
 
 export class CreateDtsFile {
 
-    str: string = "";
+    str: string;
 
     private $lines: string[] = [];
 
@@ -29,7 +30,12 @@ export class CreateDtsFile {
             this.$nameList.push(file.parser.name);
         }
 
-        this.$lines.push(`declare module ${name} {`);
+        if (FileManager.isInPack(name) === false) {
+            this.$lines.push(`declare module ${name} {`);
+        }
+        else {
+            this.$lines.push(`declare namespace ${name} {`);
+        }
 
         let numOfDfn = 0;
         numOfDfn = this.$mergeEnums(numOfDfn, files);
@@ -40,9 +46,7 @@ export class CreateDtsFile {
         this.$lines.push(`}`);
 
         this.str = this.$lines.join(Constants.NEWLINE);
-
-        const url: string = Util.getAbsolutePath(dir, name + ".d.ts");
-        fs.writeFileSync(url, this.str);
+        FileManager.put(name, "d.ts", this.str);
     }
 
     private $mergeEnums(numOfDfn: number, files: FileParser[]): number {
@@ -52,6 +56,9 @@ export class CreateDtsFile {
             const parser = file.parser;
             this.$doneList.push(parser.name);
 
+            if (Util.needExport(parser.notes) === false) {
+                continue;
+            }
             if (numOfDfn > 0) {
                 this.$checkEndLine();
             }
@@ -64,13 +71,16 @@ export class CreateDtsFile {
 
             let firstLine = true;
             while (vars.length > 0) {
+                const item = vars.shift() as IVariableInfo;
+                if (Util.needExport(item.notes) === false) {
+                    continue;
+                }
                 if (firstLine === true) {
                     firstLine = false;
                 }
                 else {
                     this.$checkEndLine();
                 }
-                const item = vars.shift() as IVariableInfo;
                 this.$exportNotes(2, item.notes);
                 const s0 = vars.length === 0 ? "" : ",";
                 this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.name}${s0}`);
@@ -92,10 +102,12 @@ export class CreateDtsFile {
                 if (this.$notYet(parser) === true) {
                     continue;
                 }
-
                 array.push(file);
                 this.$doneList.push(parser.name);
 
+                if (Util.needExport(parser.notes) === false) {
+                    continue;
+                }
                 if (numOfDfn > 0) {
                     this.$checkEndLine();
                 }
@@ -109,19 +121,25 @@ export class CreateDtsFile {
 
                 let firstLine = true;
                 while (vars.length > 0) {
+                    const item = vars.shift() as IVariableInfo;
+                    if (Util.needExport(item.notes) === false) {
+                        continue;
+                    }
                     if (firstLine === true) {
                         firstLine = false;
                     }
                     else {
                         this.$checkEndLine();
                     }
-                    const item = vars.shift() as IVariableInfo;
                     this.$exportNotes(2, item.notes);
                     this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.lines[0]}`);
                 }
                 while (funcs.length > 0) {
-                    this.$checkEndLine();
                     const item = funcs.shift() as IFunctionInfo;
+                    if (Util.needExport(item.notes) === false) {
+                        continue;
+                    }
+                    this.$checkEndLine();
                     this.$exportNotes(2, item.notes);
                     this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
                 }
@@ -151,10 +169,12 @@ export class CreateDtsFile {
                 if (this.$notYet(parser) === true) {
                     continue;
                 }
-
                 array.push(file);
                 this.$doneList.push(parser.name);
 
+                if (Util.needExport(parser.notes) === false) {
+                    continue;
+                }
                 if (numOfDfn > 0) {
                     this.$checkEndLine();
                 }
@@ -209,21 +229,27 @@ export class CreateDtsFile {
 
                 let firstLine = true;
                 while (vars.length > 0) {
+                    const item = vars.shift() as IVariableInfo;
+                    if (Util.needExport(item.notes) === false) {
+                        continue;
+                    }
                     if (firstLine === true) {
                         firstLine = false;
                     }
                     else {
                         this.$checkEndLine();
                     }
-                    const item = vars.shift() as IVariableInfo;
                     this.$exportNotes(2, item.notes);
                     const s0 = item.keywords.length === 0 ? "" : `${item.keywords.join(" ")} `;
                     const s1 = `${s0}${item.name}: ${item.type};`;
                     this.$lines.push(`${Constants.TAB}${Constants.TAB}${s1}`);
                 }
                 while (funcs.length > 0) {
-                    this.$checkEndLine();
                     const item = funcs.shift() as IFunctionInfo;
+                    if (Util.needExport(item.notes) === false) {
+                        continue;
+                    }
+                    this.$checkEndLine();
                     this.$exportNotes(2, item.notes);
                     const args: string[] = [];
                     for (const arg of item.args) {
@@ -272,6 +298,9 @@ export class CreateDtsFile {
             const parser = file.parser;
             this.$doneList.push(parser.name);
 
+            // if (Util.needExport(parser.notes) === false) {
+            //     continue;
+            // }
             if (numOfDfn > 0) {
                 this.$checkEndLine();
             }
@@ -282,13 +311,16 @@ export class CreateDtsFile {
 
             let firstLine = true;
             while (vars.length > 0) {
+                const item = vars.shift() as IVariableInfo;
+                if (Util.needExport(item.notes) === false) {
+                    continue;
+                }
                 if (firstLine === true) {
                     firstLine = false;
                 }
                 else {
                     this.$checkEndLine();
                 }
-                const item = vars.shift() as IVariableInfo;
                 this.$exportNotes(1, item.notes);
                 if (item.keywords.shift() !== "export") {
                     throw Error(`写入.d.ts文件中的变量必须声明为export`);
@@ -297,8 +329,11 @@ export class CreateDtsFile {
                 this.$lines.push(`${Constants.TAB}${s0}`);
             }
             while (funcs.length > 0) {
-                this.$checkEndLine();
                 const item = funcs.shift() as IFunctionInfo;
+                if (Util.needExport(item.notes) === false) {
+                    continue;
+                }
+                this.$checkEndLine();
                 this.$exportNotes(1, item.notes);
                 if (item.keywords.shift() !== "export") {
                     throw Error(`写入.d.ts文件中的函数必须声明为export`);
@@ -380,11 +415,16 @@ export class CreateDtsFile {
             notes.push(str);
         }
 
-        this.$lines.push(`${tabs}/**`);
-        for (const note of notes) {
-            this.$lines.push(`${tabs} * ${note}`);
+        if (notes.length > 0) {
+            this.$lines.push(`${tabs}/**`);
+            for (const note of notes) {
+                this.$lines.push(`${tabs} * ${note}`);
+            }
+            this.$lines.push(`${tabs} */`);
         }
-        this.$lines.push(`${tabs} */`);
+        else {
+            this.$checkEndLine();
+        }
 
         if (str === "export") {
             notes.push(str);
@@ -403,7 +443,7 @@ export class CreateDtsFile {
 
     private $mergeNote(name: string, files: FileParser[]): void {
         for (const file of files) {
-            if (file.notes.length > 0) {
+            if (Util.needExport(file.notes) === true) {
                 this.$exportNotes(0, file.notes);
                 break;
             }

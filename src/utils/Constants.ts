@@ -39,4 +39,9 @@ export abstract class Constants {
      * 发布路径
      */
     static DIR_RELEASE: string = "release";
+
+    /**
+     * 是否封包
+     */
+    static ENABLE_PACKAGE: boolean = false;
 }

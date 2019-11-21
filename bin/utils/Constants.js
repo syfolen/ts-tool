@@ -31,6 +31,10 @@ var Constants = /** @class */ (function () {
      * 发布路径
      */
     Constants.DIR_RELEASE = "release";
+    /**
+     * 是否封包
+     */
+    Constants.ENABLE_PACKAGE = false;
     return Constants;
 }());
 exports.Constants = Constants;

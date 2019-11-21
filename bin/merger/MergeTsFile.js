@@ -1,15 +1,12 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var fs_1 = __importDefault(require("fs"));
 var Util_1 = require("../utils/Util");
 var Constants_1 = require("../utils/Constants");
 var InterfaceParser_1 = require("../parser/InterfaceParser");
 var ClassParser_1 = require("../parser/ClassParser");
 var EnumParser_1 = require("../parser/EnumParser");
 var NamespaceParser_1 = require("../parser/NamespaceParser");
+var FileManager_1 = require("../utils/FileManager");
 var MergeTsFile = /** @class */ (function () {
     function MergeTsFile(dir, name, files) {
         this.str = "";
@@ -21,7 +18,12 @@ var MergeTsFile = /** @class */ (function () {
             var file = files_1[_i];
             this.$nameList.push(file.parser.name);
         }
-        this.$lines.push("module " + name + " {");
+        if (FileManager_1.FileManager.isInPack(name) === false) {
+            this.$lines.push("module " + name + " {");
+        }
+        else {
+            this.$lines.push("namespace " + name + " {");
+        }
         var numOfDfn = 0;
         numOfDfn = this.$mergeEnums(numOfDfn, files);
         numOfDfn = this.$mergeInterfaces(numOfDfn, files);
@@ -29,8 +31,7 @@ var MergeTsFile = /** @class */ (function () {
         numOfDfn = this.$mergeNamepaces(numOfDfn, files);
         this.$lines.push("}");
         this.str = this.$lines.join(Constants_1.Constants.NEWLINE);
-        var url = Util_1.Util.getAbsolutePath(dir, name + ".ts");
-        fs_1.default.writeFileSync(url, this.str);
+        FileManager_1.FileManager.put(name, "ts", this.str);
     }
     MergeTsFile.prototype.$mergeEnums = function (numOfDfn, files) {
         files = Util_1.Util.returnFilesOfParser(files.slice(0), EnumParser_1.EnumParser);
@@ -260,12 +261,17 @@ var MergeTsFile = /** @class */ (function () {
         if (str !== "export") {
             notes.push(str);
         }
-        this.$lines.push(tabs + "/**");
-        for (var _i = 0, notes_1 = notes; _i < notes_1.length; _i++) {
-            var note = notes_1[_i];
-            this.$lines.push(tabs + " * " + note);
+        if (notes.length > 0) {
+            this.$lines.push(tabs + "/**");
+            for (var _i = 0, notes_1 = notes; _i < notes_1.length; _i++) {
+                var note = notes_1[_i];
+                this.$lines.push(tabs + " * " + note);
+            }
+            this.$lines.push(tabs + " */");
         }
-        this.$lines.push(tabs + " */");
+        else {
+            this.$checkEndLine();
+        }
         if (str === "export") {
             notes.push(str);
         }

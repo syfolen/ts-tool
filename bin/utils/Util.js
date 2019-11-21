@@ -142,6 +142,17 @@ var Util = /** @class */ (function () {
         }
         return array;
     };
+    /**
+     * 根据注释的最后一行是否为export来判断是否需要输出
+     */
+    Util.needExport = function (notes) {
+        if (notes.length === 0) {
+            return false;
+        }
+        var reg0 = notes.length - 1;
+        var s0 = notes[reg0];
+        return s0 === "export";
+    };
     return Util;
 }());
 exports.Util = Util;

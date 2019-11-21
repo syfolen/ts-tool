@@ -1,18 +1,14 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var fs_1 = __importDefault(require("fs"));
 var Util_1 = require("../utils/Util");
 var Constants_1 = require("../utils/Constants");
 var InterfaceParser_1 = require("../parser/InterfaceParser");
 var ClassParser_1 = require("../parser/ClassParser");
 var EnumParser_1 = require("../parser/EnumParser");
 var NamespaceParser_1 = require("../parser/NamespaceParser");
+var FileManager_1 = require("../utils/FileManager");
 var CreateDtsFile = /** @class */ (function () {
     function CreateDtsFile(dir, name, files) {
-        this.str = "";
         this.$lines = [];
         this.$nameList = [];
         this.$doneList = [];
@@ -21,7 +17,12 @@ var CreateDtsFile = /** @class */ (function () {
             var file = files_1[_i];
             this.$nameList.push(file.parser.name);
         }
-        this.$lines.push("declare module " + name + " {");
+        if (FileManager_1.FileManager.isInPack(name) === false) {
+            this.$lines.push("declare module " + name + " {");
+        }
+        else {
+            this.$lines.push("declare namespace " + name + " {");
+        }
         var numOfDfn = 0;
         numOfDfn = this.$mergeEnums(numOfDfn, files);
         numOfDfn = this.$mergeInterfaces(numOfDfn, files);
@@ -29,8 +30,7 @@ var CreateDtsFile = /** @class */ (function () {
         numOfDfn = this.$mergeNamepaces(numOfDfn, files);
         this.$lines.push("}");
         this.str = this.$lines.join(Constants_1.Constants.NEWLINE);
-        var url = Util_1.Util.getAbsolutePath(dir, name + ".d.ts");
-        fs_1.default.writeFileSync(url, this.str);
+        FileManager_1.FileManager.put(name, "d.ts", this.str);
     }
     CreateDtsFile.prototype.$mergeEnums = function (numOfDfn, files) {
         files = Util_1.Util.returnFilesOfParser(files.slice(0), EnumParser_1.EnumParser);
@@ -38,6 +38,9 @@ var CreateDtsFile = /** @class */ (function () {
             var file = files_2[_i];
             var parser = file.parser;
             this.$doneList.push(parser.name);
+            if (Util_1.Util.needExport(parser.notes) === false) {
+                continue;
+            }
             if (numOfDfn > 0) {
                 this.$checkEndLine();
             }
@@ -47,13 +50,16 @@ var CreateDtsFile = /** @class */ (function () {
             var vars = parser.variables.slice(0);
             var firstLine = true;
             while (vars.length > 0) {
+                var item = vars.shift();
+                if (Util_1.Util.needExport(item.notes) === false) {
+                    continue;
+                }
                 if (firstLine === true) {
                     firstLine = false;
                 }
                 else {
                     this.$checkEndLine();
                 }
-                var item = vars.shift();
                 this.$exportNotes(2, item.notes);
                 var s0 = vars.length === 0 ? "" : ",";
                 this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.name + s0);
@@ -74,6 +80,9 @@ var CreateDtsFile = /** @class */ (function () {
                 }
                 array.push(file);
                 this.$doneList.push(parser.name);
+                if (Util_1.Util.needExport(parser.notes) === false) {
+                    continue;
+                }
                 if (numOfDfn > 0) {
                     this.$checkEndLine();
                 }
@@ -84,19 +93,25 @@ var CreateDtsFile = /** @class */ (function () {
                 var funcs = parser.functions.slice(0);
                 var firstLine = true;
                 while (vars.length > 0) {
+                    var item = vars.shift();
+                    if (Util_1.Util.needExport(item.notes) === false) {
+                        continue;
+                    }
                     if (firstLine === true) {
                         firstLine = false;
                     }
                     else {
                         this.$checkEndLine();
                     }
-                    var item = vars.shift();
                     this.$exportNotes(2, item.notes);
                     this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.lines[0]);
                 }
                 while (funcs.length > 0) {
-                    this.$checkEndLine();
                     var item = funcs.shift();
+                    if (Util_1.Util.needExport(item.notes) === false) {
+                        continue;
+                    }
+                    this.$checkEndLine();
                     this.$exportNotes(2, item.notes);
                     this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.line);
                 }
@@ -125,6 +140,9 @@ var CreateDtsFile = /** @class */ (function () {
                 }
                 array.push(file);
                 this.$doneList.push(parser.name);
+                if (Util_1.Util.needExport(parser.notes) === false) {
+                    continue;
+                }
                 if (numOfDfn > 0) {
                     this.$checkEndLine();
                 }
@@ -176,21 +194,27 @@ var CreateDtsFile = /** @class */ (function () {
                 }
                 var firstLine = true;
                 while (vars.length > 0) {
+                    var item = vars.shift();
+                    if (Util_1.Util.needExport(item.notes) === false) {
+                        continue;
+                    }
                     if (firstLine === true) {
                         firstLine = false;
                     }
                     else {
                         this.$checkEndLine();
                     }
-                    var item = vars.shift();
                     this.$exportNotes(2, item.notes);
                     var s0 = item.keywords.length === 0 ? "" : item.keywords.join(" ") + " ";
                     var s1 = "" + s0 + item.name + ": " + item.type + ";";
                     this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + s1);
                 }
                 while (funcs.length > 0) {
-                    this.$checkEndLine();
                     var item = funcs.shift();
+                    if (Util_1.Util.needExport(item.notes) === false) {
+                        continue;
+                    }
+                    this.$checkEndLine();
                     this.$exportNotes(2, item.notes);
                     var args = [];
                     for (var _b = 0, _c = item.args; _b < _c.length; _b++) {
@@ -233,6 +257,9 @@ var CreateDtsFile = /** @class */ (function () {
             var file = files_5[_i];
             var parser = file.parser;
             this.$doneList.push(parser.name);
+            // if (Util.needExport(parser.notes) === false) {
+            //     continue;
+            // }
             if (numOfDfn > 0) {
                 this.$checkEndLine();
             }
@@ -241,13 +268,16 @@ var CreateDtsFile = /** @class */ (function () {
             var funcs = parser.functions.slice(0);
             var firstLine = true;
             while (vars.length > 0) {
+                var item = vars.shift();
+                if (Util_1.Util.needExport(item.notes) === false) {
+                    continue;
+                }
                 if (firstLine === true) {
                     firstLine = false;
                 }
                 else {
                     this.$checkEndLine();
                 }
-                var item = vars.shift();
                 this.$exportNotes(1, item.notes);
                 if (item.keywords.shift() !== "export") {
                     throw Error("\u5199\u5165.d.ts\u6587\u4EF6\u4E2D\u7684\u53D8\u91CF\u5FC5\u987B\u58F0\u660E\u4E3Aexport");
@@ -256,8 +286,11 @@ var CreateDtsFile = /** @class */ (function () {
                 this.$lines.push("" + Constants_1.Constants.TAB + s0);
             }
             while (funcs.length > 0) {
-                this.$checkEndLine();
                 var item = funcs.shift();
+                if (Util_1.Util.needExport(item.notes) === false) {
+                    continue;
+                }
+                this.$checkEndLine();
                 this.$exportNotes(1, item.notes);
                 if (item.keywords.shift() !== "export") {
                     throw Error("\u5199\u5165.d.ts\u6587\u4EF6\u4E2D\u7684\u51FD\u6570\u5FC5\u987B\u58F0\u660E\u4E3Aexport");
@@ -333,12 +366,17 @@ var CreateDtsFile = /** @class */ (function () {
         if (str !== "export") {
             notes.push(str);
         }
-        this.$lines.push(tabs + "/**");
-        for (var _i = 0, notes_1 = notes; _i < notes_1.length; _i++) {
-            var note = notes_1[_i];
-            this.$lines.push(tabs + " * " + note);
+        if (notes.length > 0) {
+            this.$lines.push(tabs + "/**");
+            for (var _i = 0, notes_1 = notes; _i < notes_1.length; _i++) {
+                var note = notes_1[_i];
+                this.$lines.push(tabs + " * " + note);
+            }
+            this.$lines.push(tabs + " */");
         }
-        this.$lines.push(tabs + " */");
+        else {
+            this.$checkEndLine();
+        }
         if (str === "export") {
             notes.push(str);
         }
@@ -355,7 +393,7 @@ var CreateDtsFile = /** @class */ (function () {
     CreateDtsFile.prototype.$mergeNote = function (name, files) {
         for (var _i = 0, files_6 = files; _i < files_6.length; _i++) {
             var file = files_6[_i];
-            if (file.notes.length > 0) {
+            if (Util_1.Util.needExport(file.notes) === true) {
                 this.$exportNotes(0, file.notes);
                 break;
             }
