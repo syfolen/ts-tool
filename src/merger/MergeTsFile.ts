@@ -10,8 +10,9 @@ import { EnumParser } from "../parser/EnumParser";
 import { DefineParser } from "../parser/DefineParser";
 import { IVariableInfo } from "../interfaces/IVariableInfo";
 import { IFunctionInfo } from "../interfaces/IFunctionInfo";
-import { NamespaceParser } from "../parser/NamespaceParser";
+import { ModuleParser } from "../parser/ModuleParser";
 import { FileManager } from "../utils/FileManager";
+import { NamespaceParser } from "../parser/NamespaceParser";
 
 export class MergeTsFile {
 
@@ -23,25 +24,21 @@ export class MergeTsFile {
 
     private $doneList: string[] = [];
 
-    constructor(dir: string, name: string, files: FileParser[]) {
+    constructor(name: string, files: FileParser[]) {
         this.$mergeNote(name, files);
 
         for (const file of files) {
             this.$nameList.push(file.parser.name);
         }
 
-        if (FileManager.isInPack(name) === false) {
-            this.$lines.push(`module ${name} {`);
-        }
-        else {
-            this.$lines.push(`namespace ${name} {`);
-        }
+        this.$lines.push(`module ${name} {`);
 
         let numOfDfn = 0;
         numOfDfn = this.$mergeEnums(numOfDfn, files);
         numOfDfn = this.$mergeInterfaces(numOfDfn, files);
-        numOfDfn = this.$mergeClasses(numOfDfn, files);
         numOfDfn = this.$mergeNamepaces(numOfDfn, files);
+        numOfDfn = this.$mergeClasses(numOfDfn, files);
+        numOfDfn = this.$mergeModule(numOfDfn, files);
 
         this.$lines.push(`}`);
 
@@ -223,6 +220,54 @@ export class MergeTsFile {
             }
             numOfDfn++;
 
+            this.$exportNotes(1, parser.notes);
+            this.$exportNamespaceName(parser as NamespaceParser);
+
+            const vars: IVariableInfo[] = parser.variables.slice(0);
+            const funcs: IFunctionInfo[] = parser.functions.slice(0);
+
+            let firstLine = true;
+            while (vars.length > 0) {
+                if (firstLine === true) {
+                    firstLine = false;
+                }
+                else {
+                    this.$checkEndLine();
+                }
+                const item = vars.shift() as IVariableInfo;
+                this.$exportNotes(2, item.notes);
+                for (const line of item.lines) {
+                    this.$lines.push(`${Constants.TAB}${Constants.TAB}${line}`);
+                }
+            }
+            while (funcs.length > 0) {
+                this.$checkEndLine();
+                const item = funcs.shift() as IFunctionInfo;
+                this.$exportNotes(2, item.notes);
+                this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.line}`);
+                for (const line of item.lines) {
+                    this.$lines.push(`${Constants.TAB}${Constants.TAB}${Constants.TAB}${line}`);
+                }
+                this.$lines.push(`${Constants.TAB}${Constants.TAB}}`);
+            }
+            this.$lines.push(`${Constants.TAB}}`);
+        }
+
+        return numOfDfn;
+    }
+
+    private $mergeModule(numOfDfn: number, files: FileParser[]): number {
+        files = Util.returnFilesOfParser(files.slice(0), ModuleParser);
+
+        for (const file of files) {
+            const parser = file.parser;
+            this.$doneList.push(parser.name);
+
+            if (numOfDfn > 0) {
+                this.$checkEndLine();
+            }
+            numOfDfn++;
+
             const vars: IVariableInfo[] = parser.variables.slice(0);
             const funcs: IFunctionInfo[] = parser.functions.slice(0);
 
@@ -257,6 +302,11 @@ export class MergeTsFile {
 
     private $exportEnumName(parser: EnumParser): void {
         const line = `export enum ${parser.name} {`;
+        this.$lines.push(`${Constants.TAB}${line}`);
+    }
+
+    private $exportNamespaceName(parser: NamespaceParser): void {
+        const line = `export namespace ${parser.name} {`;
         this.$lines.push(`${Constants.TAB}${line}`);
     }
 
@@ -300,12 +350,6 @@ export class MergeTsFile {
             tabs += Constants.TAB;
         }
 
-        // 无视 export 标记
-        const str = notes.pop() as string;
-        if (str !== "export") {
-            notes.push(str);
-        }
-
         if (notes.length > 0) {
             this.$lines.push(`${tabs}/**`);
             for (const note of notes) {
@@ -315,10 +359,6 @@ export class MergeTsFile {
         }
         else {
             this.$checkEndLine();
-        }
-
-        if (str === "export") {
-            notes.push(str);
         }
     }
 

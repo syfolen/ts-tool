@@ -6,6 +6,8 @@ import { ClassParser } from "./ClassParser";
 import { EnumParser } from "./EnumParser";
 import { DefineParser } from "./DefineParser";
 import { InterfaceParser } from "./InterfaceParser";
+import { ModuleParser } from "./ModuleParser";
+import { ExportTypeEnum } from "../interfaces/ExportTypeEnum";
 import { NamespaceParser } from "./NamespaceParser";
 
 export class FileParser {
@@ -13,6 +15,11 @@ export class FileParser {
      * 行信息
      */
     private $lines: string[] = [];
+
+    /**
+     * 导出类型
+     */
+    exportType: ExportTypeEnum = ExportTypeEnum.DEFAULT;
 
     /**
      * 文件地址
@@ -75,6 +82,11 @@ export class FileParser {
             return n;
         }
 
+        const m = new ModuleParser(str);
+        if (m.ok === true) {
+            return m;
+        }
+
         throw Error("yes");
     }
 
@@ -83,6 +95,7 @@ export class FileParser {
      */
     private $parseDefineInfomation(str: string): void {
         this.notes = Util.readNotes(this.$lines);
+        this.exportType = Util.readExportType(this.notes);
 
         // 必定有模块名
         const line = this.$lines.shift() as string;

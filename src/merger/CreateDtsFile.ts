@@ -10,8 +10,10 @@ import { EnumParser } from "../parser/EnumParser";
 import { DefineParser } from "../parser/DefineParser";
 import { IVariableInfo } from "../interfaces/IVariableInfo";
 import { IFunctionInfo } from "../interfaces/IFunctionInfo";
-import { NamespaceParser } from "../parser/NamespaceParser";
+import { ModuleParser } from "../parser/ModuleParser";
 import { FileManager } from "../utils/FileManager";
+import { ExportTypeEnum } from "../interfaces/ExportTypeEnum";
+import { NamespaceParser } from "../parser/NamespaceParser";
 
 export class CreateDtsFile {
 
@@ -23,25 +25,21 @@ export class CreateDtsFile {
 
     private $doneList: string[] = [];
 
-    constructor(dir: string, name: string, files: FileParser[]) {
-        this.$mergeNote(name, files);
+    constructor(name: string, files: FileParser[]) {
+        this.$mergeNote(files);
 
         for (const file of files) {
             this.$nameList.push(file.parser.name);
         }
 
-        if (FileManager.isInPack(name) === false) {
-            this.$lines.push(`declare module ${name} {`);
-        }
-        else {
-            this.$lines.push(`declare namespace ${name} {`);
-        }
+        this.$lines.push(`declare module ${name} {`);
 
         let numOfDfn = 0;
         numOfDfn = this.$mergeEnums(numOfDfn, files);
         numOfDfn = this.$mergeInterfaces(numOfDfn, files);
+        numOfDfn = this.$mergeNamespace(numOfDfn, files);
         numOfDfn = this.$mergeClasses(numOfDfn, files);
-        numOfDfn = this.$mergeNamepaces(numOfDfn, files);
+        numOfDfn = this.$mergeModule(numOfDfn, files);
 
         this.$lines.push(`}`);
 
@@ -56,7 +54,7 @@ export class CreateDtsFile {
             const parser = file.parser;
             this.$doneList.push(parser.name);
 
-            if (Util.needExport(parser.notes) === false) {
+            if (parser.exportType === ExportTypeEnum.DEFAULT) {
                 continue;
             }
             if (numOfDfn > 0) {
@@ -72,8 +70,11 @@ export class CreateDtsFile {
             let firstLine = true;
             while (vars.length > 0) {
                 const item = vars.shift() as IVariableInfo;
-                if (Util.needExport(item.notes) === false) {
+                if (item.exportType === ExportTypeEnum.DEFAULT) {
                     continue;
+                }
+                else if (item.exportType === ExportTypeEnum.DEPENDS) {
+                    throw Error("enum中的属性不支持DEPENDS导出方式");
                 }
                 if (firstLine === true) {
                     firstLine = false;
@@ -105,7 +106,7 @@ export class CreateDtsFile {
                 array.push(file);
                 this.$doneList.push(parser.name);
 
-                if (Util.needExport(parser.notes) === false) {
+                if (parser.exportType === ExportTypeEnum.DEFAULT) {
                     continue;
                 }
                 if (numOfDfn > 0) {
@@ -119,10 +120,21 @@ export class CreateDtsFile {
                 const vars: IVariableInfo[] = parser.variables.slice(0);
                 const funcs: IFunctionInfo[] = parser.functions.slice(0);
 
+                let exportType = ExportTypeEnum.DEFAULT;
+
                 let firstLine = true;
                 while (vars.length > 0) {
                     const item = vars.shift() as IVariableInfo;
-                    if (Util.needExport(item.notes) === false) {
+                    // 导出类型为依赖的，取决于上一次导出模式
+                    if (item.exportType === ExportTypeEnum.DEPENDS) {
+                        if (exportType === ExportTypeEnum.DEFAULT) {
+                            continue;
+                        }
+                    }
+                    else {
+                        exportType = item.exportType;
+                    }
+                    if (item.exportType === ExportTypeEnum.DEFAULT) {
                         continue;
                     }
                     if (firstLine === true) {
@@ -134,9 +146,21 @@ export class CreateDtsFile {
                     this.$exportNotes(2, item.notes);
                     this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.lines[0]}`);
                 }
+
+                exportType = ExportTypeEnum.DEFAULT;
+
                 while (funcs.length > 0) {
                     const item = funcs.shift() as IFunctionInfo;
-                    if (Util.needExport(item.notes) === false) {
+                    // 导出类型为依赖的，取决于上一次导出模式
+                    if (item.exportType === ExportTypeEnum.DEPENDS) {
+                        if (exportType === ExportTypeEnum.DEFAULT) {
+                            continue;
+                        }
+                    }
+                    else {
+                        exportType = item.exportType;
+                    }
+                    if (item.exportType === ExportTypeEnum.DEFAULT) {
                         continue;
                     }
                     this.$checkEndLine();
@@ -159,6 +183,74 @@ export class CreateDtsFile {
         return numOfDfn;
     }
 
+    private $mergeNamespace(numOfDfn: number, files: FileParser[]): number {
+        files = Util.returnFilesOfParser(files.slice(0), NamespaceParser);
+
+        for (const file of files) {
+            const parser = file.parser;
+            this.$doneList.push(parser.name);
+
+            if (numOfDfn > 0) {
+                this.$checkEndLine();
+            }
+            numOfDfn++;
+
+            this.$exportNotes(1, parser.notes);
+            this.$exportNamespaceName(parser as NamespaceParser);
+
+            const vars: IVariableInfo[] = parser.variables.slice(0);
+            const funcs: IFunctionInfo[] = parser.functions.slice(0);
+
+            let firstLine = true;
+            while (vars.length > 0) {
+                const item = vars.shift() as IVariableInfo;
+                if (item.exportType === ExportTypeEnum.DEFAULT) {
+                    continue;
+                }
+                else if (item.exportType === ExportTypeEnum.DEPENDS) {
+                    throw Error("namespace中的属性不支持DEPENDS导出方式");
+                }
+                if (firstLine === true) {
+                    firstLine = false;
+                }
+                else {
+                    this.$checkEndLine();
+                }
+                this.$exportNotes(2, item.notes);
+                if (item.keywords.shift() !== "export") {
+                    throw Error(`写入.d.ts文件中的变量必须声明为export`);
+                }
+                const s0 = `${item.keywords.join(" ")} ${item.name}: ${item.type};`;
+                this.$lines.push(`${Constants.TAB}${Constants.TAB}${s0}`);
+            }
+            while (funcs.length > 0) {
+                const item = funcs.shift() as IFunctionInfo;
+                if (item.exportType === ExportTypeEnum.DEFAULT) {
+                    continue;
+                }
+                else if (item.exportType === ExportTypeEnum.DEPENDS) {
+                    throw Error("namespace中的方法不支持DEPENDS导出方式");
+                }
+                this.$checkEndLine();
+                this.$exportNotes(2, item.notes);
+                if (item.keywords.shift() !== "export") {
+                    throw Error(`写入.d.ts文件中的函数必须声明为export`);
+                }
+                const args: string[] = [];
+                for (const arg of item.args) {
+                    const s0 = arg.optional === false ? "" : "?";
+                    const s1 = `${arg.name}${s0}:${arg.type}`;
+                    args.push(s1);
+                }
+                const s2 = `${item.keywords.join(" ")} ${item.name}(${args.join(", ")}): ${item.retVal};`;
+                this.$lines.push(`${Constants.TAB}${Constants.TAB}${s2}`);
+            }
+            this.$lines.push(`${Constants.TAB}}`);
+        }
+
+        return numOfDfn;
+    }
+
     private $mergeClasses(numOfDfn: number, files: FileParser[]): number {
         files = Util.returnFilesOfParser(files.slice(0), ClassParser);
 
@@ -172,7 +264,7 @@ export class CreateDtsFile {
                 array.push(file);
                 this.$doneList.push(parser.name);
 
-                if (Util.needExport(parser.notes) === false) {
+                if (parser.exportType === ExportTypeEnum.DEFAULT) {
                     continue;
                 }
                 if (numOfDfn > 0) {
@@ -189,6 +281,9 @@ export class CreateDtsFile {
                 // 将寄存器方法转化为变量
                 const a: IFunctionInfo[] = [];
                 for (const func of funcs) {
+                    if (func.keywords.indexOf("abstract") !== -1) {
+                        continue;
+                    }
                     if (func.keywords.indexOf("set") !== -1) {
                         a.push(func);
                     }
@@ -206,10 +301,11 @@ export class CreateDtsFile {
                         funcs.splice(i, 1);
                         const info: IVariableInfo = {
                             notes: func.notes,
+                            exportType: func.exportType,
                             lines: func.lines,
                             keywords: func.keywords,
                             name: func.name,
-                            type: func.ret,
+                            type: func.retVal,
                             optional: false,
                             value: ""
                         };
@@ -227,10 +323,21 @@ export class CreateDtsFile {
                     funcs.splice(reg0, 1);
                 }
 
+                let exportType = ExportTypeEnum.DEFAULT;
+
                 let firstLine = true;
                 while (vars.length > 0) {
                     const item = vars.shift() as IVariableInfo;
-                    if (Util.needExport(item.notes) === false) {
+                    // 导出类型为依赖的，取决于上一次导出模式
+                    if (item.exportType === ExportTypeEnum.DEPENDS) {
+                        if (exportType === ExportTypeEnum.DEFAULT) {
+                            continue;
+                        }
+                    }
+                    else {
+                        exportType = item.exportType;
+                    }
+                    if (item.exportType === ExportTypeEnum.DEFAULT) {
                         continue;
                     }
                     if (firstLine === true) {
@@ -246,7 +353,16 @@ export class CreateDtsFile {
                 }
                 while (funcs.length > 0) {
                     const item = funcs.shift() as IFunctionInfo;
-                    if (Util.needExport(item.notes) === false) {
+                    // 导出类型为依赖的，取决于上一次导出模式
+                    if (item.exportType === ExportTypeEnum.DEPENDS) {
+                        if (exportType === ExportTypeEnum.DEFAULT) {
+                            continue;
+                        }
+                    }
+                    else {
+                        exportType = item.exportType;
+                    }
+                    if (item.exportType === ExportTypeEnum.DEFAULT) {
                         continue;
                     }
                     this.$checkEndLine();
@@ -258,17 +374,22 @@ export class CreateDtsFile {
                         args.push(s1);
                     }
 
-                    const s2 = item.name === "constructor" ? "" : `: ${item.ret}`;
+                    const s2 = item.name === "constructor" ? "" : `: ${item.retVal}`;
 
                     const reg0 = item.keywords.indexOf("get");
-                    if (reg0 !== -1) {
+                    const reg1 = item.keywords.indexOf("set");
+                    const reg2 = item.keywords.indexOf("abstract");
+                    if (reg0 !== -1 && reg2 === -1) {
                         item.keywords[reg0] = "readonly";
                     }
                     const s3 = item.keywords.length === 0 ? "" : `${item.keywords.join(" ")} `;
 
                     let s4;
-                    if (reg0 !== -1) {
+                    if (reg0 !== -1 && reg2 === -1) {
                         s4 = `${s3}${item.name}${s2};`;
+                    }
+                    else if (reg1 !== -1) {
+                        s4 = `${s3}${item.name}(${args.join(", ")});`;
                     }
                     else {
                         s4 = `${s3}${item.name}(${args.join(", ")})${s2};`;
@@ -291,16 +412,13 @@ export class CreateDtsFile {
         return numOfDfn;
     }
 
-    private $mergeNamepaces(numOfDfn: number, files: FileParser[]): number {
-        files = Util.returnFilesOfParser(files.slice(0), NamespaceParser);
+    private $mergeModule(numOfDfn: number, files: FileParser[]): number {
+        files = Util.returnFilesOfParser(files.slice(0), ModuleParser);
 
         for (const file of files) {
             const parser = file.parser;
             this.$doneList.push(parser.name);
 
-            // if (Util.needExport(parser.notes) === false) {
-            //     continue;
-            // }
             if (numOfDfn > 0) {
                 this.$checkEndLine();
             }
@@ -312,8 +430,11 @@ export class CreateDtsFile {
             let firstLine = true;
             while (vars.length > 0) {
                 const item = vars.shift() as IVariableInfo;
-                if (Util.needExport(item.notes) === false) {
+                if (item.exportType === ExportTypeEnum.DEFAULT) {
                     continue;
+                }
+                else if (item.exportType === ExportTypeEnum.DEPENDS) {
+                    throw Error("module中的属性不支持DEPENDS导出方式");
                 }
                 if (firstLine === true) {
                     firstLine = false;
@@ -330,8 +451,11 @@ export class CreateDtsFile {
             }
             while (funcs.length > 0) {
                 const item = funcs.shift() as IFunctionInfo;
-                if (Util.needExport(item.notes) === false) {
+                if (item.exportType === ExportTypeEnum.DEFAULT) {
                     continue;
+                }
+                else if (item.exportType === ExportTypeEnum.DEPENDS) {
+                    throw Error("module中的方法不支持DEPENDS导出方式");
                 }
                 this.$checkEndLine();
                 this.$exportNotes(1, item.notes);
@@ -344,7 +468,7 @@ export class CreateDtsFile {
                     const s1 = `${arg.name}${s0}:${arg.type}`;
                     args.push(s1);
                 }
-                const s2 = `${item.keywords.join(" ")} ${item.name}(${args.join(", ")}): ${item.ret};`;
+                const s2 = `${item.keywords.join(" ")} ${item.name}(${args.join(", ")}): ${item.retVal};`;
                 this.$lines.push(`${Constants.TAB}${s2}`);
             }
         }
@@ -365,6 +489,11 @@ export class CreateDtsFile {
         }
         const s1 = s0.substr("export ".length);
         this.$lines.push(`${Constants.TAB}${s1}`);
+    }
+
+    private $exportNamespaceName(parser: NamespaceParser): void {
+        const line = `namespace ${parser.name} {`;
+        this.$lines.push(`${Constants.TAB}${line}`);
     }
 
     private $exportInterfaceName(parser: InterfaceParser): void {
@@ -409,12 +538,6 @@ export class CreateDtsFile {
             tabs += Constants.TAB;
         }
 
-        // 无视 export 标记
-        const str = notes.pop() as string;
-        if (str !== "export") {
-            notes.push(str);
-        }
-
         if (notes.length > 0) {
             this.$lines.push(`${tabs}/**`);
             for (const note of notes) {
@@ -424,10 +547,6 @@ export class CreateDtsFile {
         }
         else {
             this.$checkEndLine();
-        }
-
-        if (str === "export") {
-            notes.push(str);
         }
     }
 
@@ -441,12 +560,13 @@ export class CreateDtsFile {
         this.$lines.push("");
     }
 
-    private $mergeNote(name: string, files: FileParser[]): void {
+    private $mergeNote(files: FileParser[]): void {
         for (const file of files) {
-            if (Util.needExport(file.notes) === true) {
-                this.$exportNotes(0, file.notes);
-                break;
+            if (file.exportType === ExportTypeEnum.DEFAULT) {
+                continue;
             }
+            this.$exportNotes(0, file.notes);
+            break;
         }
         if (this.$lines.length === 0) {
             this.$lines.push("");

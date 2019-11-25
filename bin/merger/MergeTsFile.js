@@ -5,10 +5,11 @@ var Constants_1 = require("../utils/Constants");
 var InterfaceParser_1 = require("../parser/InterfaceParser");
 var ClassParser_1 = require("../parser/ClassParser");
 var EnumParser_1 = require("../parser/EnumParser");
-var NamespaceParser_1 = require("../parser/NamespaceParser");
+var ModuleParser_1 = require("../parser/ModuleParser");
 var FileManager_1 = require("../utils/FileManager");
+var NamespaceParser_1 = require("../parser/NamespaceParser");
 var MergeTsFile = /** @class */ (function () {
-    function MergeTsFile(dir, name, files) {
+    function MergeTsFile(name, files) {
         this.str = "";
         this.$lines = [];
         this.$nameList = [];
@@ -18,17 +19,13 @@ var MergeTsFile = /** @class */ (function () {
             var file = files_1[_i];
             this.$nameList.push(file.parser.name);
         }
-        if (FileManager_1.FileManager.isInPack(name) === false) {
-            this.$lines.push("module " + name + " {");
-        }
-        else {
-            this.$lines.push("namespace " + name + " {");
-        }
+        this.$lines.push("module " + name + " {");
         var numOfDfn = 0;
         numOfDfn = this.$mergeEnums(numOfDfn, files);
         numOfDfn = this.$mergeInterfaces(numOfDfn, files);
-        numOfDfn = this.$mergeClasses(numOfDfn, files);
         numOfDfn = this.$mergeNamepaces(numOfDfn, files);
+        numOfDfn = this.$mergeClasses(numOfDfn, files);
+        numOfDfn = this.$mergeModule(numOfDfn, files);
         this.$lines.push("}");
         this.str = this.$lines.join(Constants_1.Constants.NEWLINE);
         FileManager_1.FileManager.put(name, "ts", this.str);
@@ -184,6 +181,50 @@ var MergeTsFile = /** @class */ (function () {
                 this.$checkEndLine();
             }
             numOfDfn++;
+            this.$exportNotes(1, parser.notes);
+            this.$exportNamespaceName(parser);
+            var vars = parser.variables.slice(0);
+            var funcs = parser.functions.slice(0);
+            var firstLine = true;
+            while (vars.length > 0) {
+                if (firstLine === true) {
+                    firstLine = false;
+                }
+                else {
+                    this.$checkEndLine();
+                }
+                var item = vars.shift();
+                this.$exportNotes(2, item.notes);
+                for (var _a = 0, _b = item.lines; _a < _b.length; _a++) {
+                    var line = _b[_a];
+                    this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + line);
+                }
+            }
+            while (funcs.length > 0) {
+                this.$checkEndLine();
+                var item = funcs.shift();
+                this.$exportNotes(2, item.notes);
+                this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.line);
+                for (var _c = 0, _d = item.lines; _c < _d.length; _c++) {
+                    var line = _d[_c];
+                    this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + Constants_1.Constants.TAB + line);
+                }
+                this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + "}");
+            }
+            this.$lines.push(Constants_1.Constants.TAB + "}");
+        }
+        return numOfDfn;
+    };
+    MergeTsFile.prototype.$mergeModule = function (numOfDfn, files) {
+        files = Util_1.Util.returnFilesOfParser(files.slice(0), ModuleParser_1.ModuleParser);
+        for (var _i = 0, files_6 = files; _i < files_6.length; _i++) {
+            var file = files_6[_i];
+            var parser = file.parser;
+            this.$doneList.push(parser.name);
+            if (numOfDfn > 0) {
+                this.$checkEndLine();
+            }
+            numOfDfn++;
             var vars = parser.variables.slice(0);
             var funcs = parser.functions.slice(0);
             var firstLine = true;
@@ -217,6 +258,10 @@ var MergeTsFile = /** @class */ (function () {
     };
     MergeTsFile.prototype.$exportEnumName = function (parser) {
         var line = "export enum " + parser.name + " {";
+        this.$lines.push("" + Constants_1.Constants.TAB + line);
+    };
+    MergeTsFile.prototype.$exportNamespaceName = function (parser) {
+        var line = "export namespace " + parser.name + " {";
         this.$lines.push("" + Constants_1.Constants.TAB + line);
     };
     MergeTsFile.prototype.$exportClassName = function (parser) {
@@ -256,11 +301,6 @@ var MergeTsFile = /** @class */ (function () {
             numOfTab--;
             tabs += Constants_1.Constants.TAB;
         }
-        // 无视 export 标记
-        var str = notes.pop();
-        if (str !== "export") {
-            notes.push(str);
-        }
         if (notes.length > 0) {
             this.$lines.push(tabs + "/**");
             for (var _i = 0, notes_1 = notes; _i < notes_1.length; _i++) {
@@ -271,9 +311,6 @@ var MergeTsFile = /** @class */ (function () {
         }
         else {
             this.$checkEndLine();
-        }
-        if (str === "export") {
-            notes.push(str);
         }
     };
     MergeTsFile.prototype.$checkEndLine = function () {
@@ -286,8 +323,8 @@ var MergeTsFile = /** @class */ (function () {
         this.$lines.push("");
     };
     MergeTsFile.prototype.$mergeNote = function (name, files) {
-        for (var _i = 0, files_6 = files; _i < files_6.length; _i++) {
-            var file = files_6[_i];
+        for (var _i = 0, files_7 = files; _i < files_7.length; _i++) {
+            var file = files_7[_i];
             if (file.notes.length > 0) {
                 this.$exportNotes(0, file.notes);
                 break;

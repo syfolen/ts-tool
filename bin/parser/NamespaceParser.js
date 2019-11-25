@@ -15,12 +15,27 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var DefineParser_1 = require("./DefineParser");
 var DfnTypeEnum_1 = require("../interfaces/DfnTypeEnum");
+var Util_1 = require("../utils/Util");
 var NamespaceParser = /** @class */ (function (_super) {
     __extends(NamespaceParser, _super);
     function NamespaceParser(str) {
         return _super.call(this, str, DfnTypeEnum_1.DfnTypeEnum.NAMESPACE) || this;
     }
     NamespaceParser.prototype.$parseDefineInfomation = function () {
+        var line = this.$lines.shift();
+        var array = line.split(" ");
+        var reg0 = array.indexOf("namespace");
+        if (reg0 === -1) {
+            return;
+        }
+        var ok = array.shift() === "export" && array.pop() === "{";
+        if (ok === false) {
+            throw Error("\u9519\u8BEF\u7684\u547D\u540D\u7A7A\u95F4\u5B9A\u4E49\u683C\u5F0F line:" + line);
+        }
+        array.shift();
+        this.name = array[0];
+        this.$lines.pop();
+        Util_1.Util.sortLines(this.$lines);
         this.$parseLines(this.$lines);
         this.ok = true;
     };

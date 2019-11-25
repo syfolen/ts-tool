@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var Constants_1 = require("./Constants");
+var ExportTypeEnum_1 = require("../interfaces/ExportTypeEnum");
 var Util = /** @class */ (function () {
     function Util() {
     }
@@ -143,15 +144,26 @@ var Util = /** @class */ (function () {
         return array;
     };
     /**
-     * 根据注释的最后一行是否为export来判断是否需要输出
+     * 判断导出类型
      */
-    Util.needExport = function (notes) {
-        if (notes.length === 0) {
-            return false;
+    Util.readExportType = function (notes) {
+        var type = ExportTypeEnum_1.ExportTypeEnum.DEFAULT;
+        if (notes.length > 0) {
+            var s0 = notes.pop();
+            if (s0 === "export") {
+                type = ExportTypeEnum_1.ExportTypeEnum.EXPORT;
+            }
+            else if (s0 === "depends") {
+                type = ExportTypeEnum_1.ExportTypeEnum.DEPENDS;
+            }
+            else {
+                notes.push(s0);
+                if (s0 === "depend") {
+                    console.error(">>Warn \u9519\u8BEF\u7684\u5173\u952E\u5B57\uFF0C\u53EF\u80FD\u4F60\u60F3\u6807\u6CE8\u7684\u662Fdepends");
+                }
+            }
         }
-        var reg0 = notes.length - 1;
-        var s0 = notes[reg0];
-        return s0 === "export";
+        return type;
     };
     return Util;
 }());

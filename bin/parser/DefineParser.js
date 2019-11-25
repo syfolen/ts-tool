@@ -4,13 +4,21 @@ var Constants_1 = require("../utils/Constants");
 var Util_1 = require("../utils/Util");
 var DfnTypeEnum_1 = require("../interfaces/DfnTypeEnum");
 var Logger_1 = require("../utils/Logger");
+var ExportTypeEnum_1 = require("../interfaces/ExportTypeEnum");
 var DefineParser = /** @class */ (function () {
     function DefineParser(str, type) {
+        /**
+         * 导出类型
+         */
         this.$type = DfnTypeEnum_1.DfnTypeEnum.NONE;
         /**
          * 解析是否正确
          */
         this.ok = false;
+        /**
+         * 导出与否
+         */
+        this.exportType = ExportTypeEnum_1.ExportTypeEnum.DEFAULT;
         /**
          * 定义串
          */
@@ -42,8 +50,9 @@ var DefineParser = /** @class */ (function () {
         this.str = str;
         this.$type = type;
         this.$lines = str.split(Constants_1.Constants.NEWLINE);
-        if (type !== DfnTypeEnum_1.DfnTypeEnum.NAMESPACE) {
+        if (type !== DfnTypeEnum_1.DfnTypeEnum.MODULE) {
             this.notes = Util_1.Util.readNotes(this.$lines);
+            this.exportType = Util_1.Util.readExportType(this.notes);
         }
         this.$parseDefineInfomation();
         if (this.name === "") {
@@ -78,11 +87,13 @@ var DefineParser = /** @class */ (function () {
             var notes = Util_1.Util.readNotes(lines);
             if (this.$isVar(lines[0]) === true) {
                 var info = this.$readVariableInfomation(lines);
+                info.exportType = Util_1.Util.readExportType(notes);
                 info.notes = notes;
                 this.variables.push(info);
             }
             else {
                 var info = this.$readFunctionInfomation(lines);
+                info.exportType = Util_1.Util.readExportType(notes);
                 info.notes = notes;
                 this.functions.push(info);
             }
@@ -100,7 +111,7 @@ var DefineParser = /** @class */ (function () {
         for (var _d = 0, _e = this.functions; _d < _e.length; _d++) {
             var item = _e[_d];
             Logger_1.Logger.log("name", item.name);
-            Logger_1.Logger.log("type", item.ret);
+            Logger_1.Logger.log("type", item.retVal);
             for (var _f = 0, _g = item.keywords; _f < _g.length; _f++) {
                 var a = _g[_f];
                 Logger_1.Logger.log("keywords", a);
@@ -185,12 +196,13 @@ var DefineParser = /** @class */ (function () {
     DefineParser.prototype.$readFunctionInfomation = function (lines) {
         var info = {
             notes: [],
+            exportType: ExportTypeEnum_1.ExportTypeEnum.DEFAULT,
             lines: [],
             keywords: [],
             line: "",
             name: "",
             args: [],
-            ret: ""
+            retVal: ""
         };
         var line = lines.shift();
         var str = this.$readKeyworkds(line, info.keywords);
@@ -294,7 +306,7 @@ var DefineParser = /** @class */ (function () {
                 throw Error("\u51FD\u6570\u89E3\u6790\u5931\u8D25 line:" + line);
             }
         }
-        out.ret = s0.substr(0, reg5);
+        out.retVal = s0.substr(0, reg5);
     };
     /**
      * 将函数的参数解析成字符串列表并返回
@@ -428,6 +440,7 @@ var DefineParser = /** @class */ (function () {
     DefineParser.prototype.$readVariableInfomation = function (lines) {
         var info = {
             notes: [],
+            exportType: ExportTypeEnum_1.ExportTypeEnum.DEFAULT,
             lines: [],
             keywords: [],
             name: "",

@@ -9,6 +9,8 @@ var Util_1 = require("../utils/Util");
 var ClassParser_1 = require("./ClassParser");
 var EnumParser_1 = require("./EnumParser");
 var InterfaceParser_1 = require("./InterfaceParser");
+var ModuleParser_1 = require("./ModuleParser");
+var ExportTypeEnum_1 = require("../interfaces/ExportTypeEnum");
 var NamespaceParser_1 = require("./NamespaceParser");
 var FileParser = /** @class */ (function () {
     function FileParser(url) {
@@ -16,6 +18,10 @@ var FileParser = /** @class */ (function () {
          * 行信息
          */
         this.$lines = [];
+        /**
+         * 导出类型
+         */
+        this.exportType = ExportTypeEnum_1.ExportTypeEnum.DEFAULT;
         /**
          * 模块名
          */
@@ -51,6 +57,10 @@ var FileParser = /** @class */ (function () {
         if (n.ok === true) {
             return n;
         }
+        var m = new ModuleParser_1.ModuleParser(str);
+        if (m.ok === true) {
+            return m;
+        }
         throw Error("yes");
     };
     /**
@@ -58,6 +68,7 @@ var FileParser = /** @class */ (function () {
      */
     FileParser.prototype.$parseDefineInfomation = function (str) {
         this.notes = Util_1.Util.readNotes(this.$lines);
+        this.exportType = Util_1.Util.readExportType(this.notes);
         // 必定有模块名
         var line = this.$lines.shift();
         var s0 = line.substr(0, "module ".length);

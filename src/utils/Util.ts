@@ -1,6 +1,6 @@
 import { Constants } from "./Constants";
 import { FileParser } from "../parser/FileParser";
-import { IVariableInfo } from "../interfaces/IVariableInfo";
+import { ExportTypeEnum } from "../interfaces/ExportTypeEnum";
 
 export abstract class Util {
 
@@ -164,14 +164,28 @@ export abstract class Util {
     }
 
     /**
-     * 根据注释的最后一行是否为export来判断是否需要输出
+     * 判断导出类型
      */
-    static needExport(notes: string[]): boolean {
-        if (notes.length === 0) {
-            return false;
+    static readExportType(notes: string[]): ExportTypeEnum {
+        let type = ExportTypeEnum.DEFAULT;
+
+        if (notes.length > 0) {
+            const s0 = notes.pop() as string;
+
+            if (s0 === "export") {
+                type = ExportTypeEnum.EXPORT;
+            }
+            else if (s0 === "depends") {
+                type = ExportTypeEnum.DEPENDS;
+            }
+            else {
+                notes.push(s0);
+                if (s0 === "depend") {
+                    console.error(`>>Warn 错误的关键字，可能你想标注的是depends`);
+                }
+            }
         }
-        const reg0 = notes.length - 1;
-        const s0 = notes[reg0];
-        return s0 === "export";
+
+        return type;
     }
 }

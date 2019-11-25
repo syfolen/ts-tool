@@ -5,17 +5,28 @@ import { IFunctionInfo } from "../interfaces/IFunctionInfo";
 import { DfnTypeEnum } from "../interfaces/DfnTypeEnum";
 import { IArgumentInfo } from "../interfaces/IArumentInfo";
 import { Logger } from "../utils/Logger";
+import { ExportTypeEnum } from "../interfaces/ExportTypeEnum";
 
 export abstract class DefineParser {
-
+    /**
+     * 行信息集
+     */
     protected $lines: string[];
 
+    /**
+     * 导出类型
+     */
     protected $type: DfnTypeEnum = DfnTypeEnum.NONE;
 
     /**
      * 解析是否正确
      */
     ok: boolean = false;
+
+    /**
+     * 导出与否
+     */
+    exportType: ExportTypeEnum = ExportTypeEnum.DEFAULT;
 
     /**
      * 文本
@@ -62,8 +73,9 @@ export abstract class DefineParser {
         this.$type = type;
         this.$lines = str.split(Constants.NEWLINE);
 
-        if (type !== DfnTypeEnum.NAMESPACE) {
+        if (type !== DfnTypeEnum.MODULE) {
             this.notes = Util.readNotes(this.$lines);
+            this.exportType = Util.readExportType(this.notes);
         }
 
         this.$parseDefineInfomation();
@@ -111,11 +123,13 @@ export abstract class DefineParser {
             const notes: string[] = Util.readNotes(lines);
             if (this.$isVar(lines[0]) === true) {
                 const info = this.$readVariableInfomation(lines);
+                info.exportType = Util.readExportType(notes);
                 info.notes = notes;
                 this.variables.push(info);
             }
             else {
                 const info = this.$readFunctionInfomation(lines);
+                info.exportType = Util.readExportType(notes);
                 info.notes = notes;
                 this.functions.push(info);
             }
@@ -130,7 +144,7 @@ export abstract class DefineParser {
         }
         for (const item of this.functions) {
             Logger.log("name", item.name);
-            Logger.log("type", item.ret);
+            Logger.log("type", item.retVal);
             for (const a of item.keywords) {
                 Logger.log("keywords", a);
             }
@@ -225,12 +239,13 @@ export abstract class DefineParser {
     protected $readFunctionInfomation(lines: string[]): IFunctionInfo {
         const info: IFunctionInfo = {
             notes: [],
+            exportType: ExportTypeEnum.DEFAULT,
             lines: [],
             keywords: [],
             line: "",
             name: "",
             args: [],
-            ret: ""
+            retVal: ""
         };
 
         const line = lines.shift() as string;
@@ -350,7 +365,7 @@ export abstract class DefineParser {
                 throw Error(`函数解析失败 line:${line}`);
             }
         }
-        out.ret = s0.substr(0, reg5);
+        out.retVal = s0.substr(0, reg5);
     }
 
     /**
@@ -511,6 +526,7 @@ export abstract class DefineParser {
     protected $readVariableInfomation(lines: string[]): IVariableInfo {
         const info: IVariableInfo = {
             notes: [],
+            exportType: ExportTypeEnum.DEFAULT,
             lines: [],
             keywords: [],
             name: "",
