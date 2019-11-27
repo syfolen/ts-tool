@@ -23,8 +23,8 @@ var CreateDtsFile = /** @class */ (function () {
         var numOfDfn = 0;
         numOfDfn = this.$mergeEnums(numOfDfn, files);
         numOfDfn = this.$mergeInterfaces(numOfDfn, files);
-        numOfDfn = this.$mergeNamespace(numOfDfn, files);
         numOfDfn = this.$mergeClasses(numOfDfn, files);
+        numOfDfn = this.$mergeNamespace(numOfDfn, files);
         numOfDfn = this.$mergeModule(numOfDfn, files);
         this.$lines.push("}");
         this.str = this.$lines.join(Constants_1.Constants.NEWLINE);
@@ -155,6 +155,9 @@ var CreateDtsFile = /** @class */ (function () {
             var file = files_4[_i];
             var parser = file.parser;
             this.$doneList.push(parser.name);
+            if (parser.exportType === ExportTypeEnum_1.ExportTypeEnum.DEFAULT) {
+                continue;
+            }
             if (numOfDfn > 0) {
                 this.$checkEndLine();
             }

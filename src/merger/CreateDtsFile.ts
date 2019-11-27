@@ -37,8 +37,8 @@ export class CreateDtsFile {
         let numOfDfn = 0;
         numOfDfn = this.$mergeEnums(numOfDfn, files);
         numOfDfn = this.$mergeInterfaces(numOfDfn, files);
-        numOfDfn = this.$mergeNamespace(numOfDfn, files);
         numOfDfn = this.$mergeClasses(numOfDfn, files);
+        numOfDfn = this.$mergeNamespace(numOfDfn, files);
         numOfDfn = this.$mergeModule(numOfDfn, files);
 
         this.$lines.push(`}`);
@@ -190,6 +190,9 @@ export class CreateDtsFile {
             const parser = file.parser;
             this.$doneList.push(parser.name);
 
+            if (parser.exportType === ExportTypeEnum.DEFAULT) {
+                continue;
+            }
             if (numOfDfn > 0) {
                 this.$checkEndLine();
             }

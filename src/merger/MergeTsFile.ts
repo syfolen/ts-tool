@@ -36,8 +36,8 @@ export class MergeTsFile {
         let numOfDfn = 0;
         numOfDfn = this.$mergeEnums(numOfDfn, files);
         numOfDfn = this.$mergeInterfaces(numOfDfn, files);
-        numOfDfn = this.$mergeNamepaces(numOfDfn, files);
         numOfDfn = this.$mergeClasses(numOfDfn, files);
+        numOfDfn = this.$mergeNamepaces(numOfDfn, files);
         numOfDfn = this.$mergeModule(numOfDfn, files);
 
         this.$lines.push(`}`);
