@@ -18,7 +18,7 @@ function main() {
     new MakeFile_1.MakeFile("sunui");
     new MakeFile_1.MakeFile("sunnet");
     new MakeFile_1.MakeFile("world2d");
-    new MakeFile_1.MakeFile("quadtree");
+    // new MakeFile("quadtree");
     Logger_1.Logger.output("name");
     Logger_1.Logger.output("type");
     Logger_1.Logger.output("value");

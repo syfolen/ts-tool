@@ -20,7 +20,7 @@ function main() {
     new MakeFile("sunui");
     new MakeFile("sunnet");
     new MakeFile("world2d");
-    new MakeFile("quadtree");
+    // new MakeFile("quadtree");
 
     Logger.output("name");
     Logger.output("type");

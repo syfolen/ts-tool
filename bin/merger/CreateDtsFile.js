@@ -202,7 +202,7 @@ var CreateDtsFile = /** @class */ (function () {
                 for (var _a = 0, _b = item.args; _a < _b.length; _a++) {
                     var arg = _b[_a];
                     var s0 = arg.optional === false ? "" : "?";
-                    var s1 = "" + arg.name + s0 + ":" + arg.type;
+                    var s1 = "" + arg.name + s0 + ": " + arg.type;
                     args.push(s1);
                 }
                 var s2 = item.keywords.join(" ") + " " + item.name + "(" + args.join(", ") + "): " + item.retVal + ";";
