@@ -204,14 +204,22 @@ export class CreateDtsFile {
             const vars: IVariableInfo[] = parser.variables.slice(0);
             const funcs: IFunctionInfo[] = parser.functions.slice(0);
 
+            let exportType = ExportTypeEnum.DEFAULT;
+
             let firstLine = true;
             while (vars.length > 0) {
                 const item = vars.shift() as IVariableInfo;
+                // 导出类型为依赖的，取决于上一次导出模式
+                if (item.exportType === ExportTypeEnum.DEPENDS) {
+                    if (exportType === ExportTypeEnum.DEFAULT) {
+                        continue;
+                    }
+                }
+                else {
+                    exportType = item.exportType;
+                }
                 if (item.exportType === ExportTypeEnum.DEFAULT) {
                     continue;
-                }
-                else if (item.exportType === ExportTypeEnum.DEPENDS) {
-                    throw Error("namespace中的属性不支持DEPENDS导出方式");
                 }
                 if (firstLine === true) {
                     firstLine = false;
@@ -226,13 +234,22 @@ export class CreateDtsFile {
                 const s0 = `${item.keywords.join(" ")} ${item.name}: ${item.type};`;
                 this.$lines.push(`${Constants.TAB}${Constants.TAB}${s0}`);
             }
+
+            exportType = ExportTypeEnum.DEFAULT;
+
             while (funcs.length > 0) {
                 const item = funcs.shift() as IFunctionInfo;
+                // 导出类型为依赖的，取决于上一次导出模式
+                if (item.exportType === ExportTypeEnum.DEPENDS) {
+                    if (exportType === ExportTypeEnum.DEFAULT) {
+                        continue;
+                    }
+                }
+                else {
+                    exportType = item.exportType;
+                }
                 if (item.exportType === ExportTypeEnum.DEFAULT) {
                     continue;
-                }
-                else if (item.exportType === ExportTypeEnum.DEPENDS) {
-                    throw Error("namespace中的方法不支持DEPENDS导出方式");
                 }
                 this.$checkEndLine();
                 this.$exportNotes(2, item.notes);

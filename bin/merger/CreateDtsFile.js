@@ -166,14 +166,21 @@ var CreateDtsFile = /** @class */ (function () {
             this.$exportNamespaceName(parser);
             var vars = parser.variables.slice(0);
             var funcs = parser.functions.slice(0);
+            var exportType = ExportTypeEnum_1.ExportTypeEnum.DEFAULT;
             var firstLine = true;
             while (vars.length > 0) {
                 var item = vars.shift();
+                // 导出类型为依赖的，取决于上一次导出模式
+                if (item.exportType === ExportTypeEnum_1.ExportTypeEnum.DEPENDS) {
+                    if (exportType === ExportTypeEnum_1.ExportTypeEnum.DEFAULT) {
+                        continue;
+                    }
+                }
+                else {
+                    exportType = item.exportType;
+                }
                 if (item.exportType === ExportTypeEnum_1.ExportTypeEnum.DEFAULT) {
                     continue;
-                }
-                else if (item.exportType === ExportTypeEnum_1.ExportTypeEnum.DEPENDS) {
-                    throw Error("namespace中的属性不支持DEPENDS导出方式");
                 }
                 if (firstLine === true) {
                     firstLine = false;
@@ -188,13 +195,20 @@ var CreateDtsFile = /** @class */ (function () {
                 var s0 = item.keywords.join(" ") + " " + item.name + ": " + item.type + ";";
                 this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + s0);
             }
+            exportType = ExportTypeEnum_1.ExportTypeEnum.DEFAULT;
             while (funcs.length > 0) {
                 var item = funcs.shift();
+                // 导出类型为依赖的，取决于上一次导出模式
+                if (item.exportType === ExportTypeEnum_1.ExportTypeEnum.DEPENDS) {
+                    if (exportType === ExportTypeEnum_1.ExportTypeEnum.DEFAULT) {
+                        continue;
+                    }
+                }
+                else {
+                    exportType = item.exportType;
+                }
                 if (item.exportType === ExportTypeEnum_1.ExportTypeEnum.DEFAULT) {
                     continue;
-                }
-                else if (item.exportType === ExportTypeEnum_1.ExportTypeEnum.DEPENDS) {
-                    throw Error("namespace中的方法不支持DEPENDS导出方式");
                 }
                 this.$checkEndLine();
                 this.$exportNotes(2, item.notes);

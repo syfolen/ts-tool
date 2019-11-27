@@ -11,7 +11,7 @@ main();
  * 入口函数
  */
 function main() {
-    FileManager.pack("sunlib", ["suncom", "suncore", "sunui", "sunnet", "world2d"]);
+    // FileManager.pack("sunlib", ["suncom", "suncore", "sunui", "sunnet", "world2d"]);
 
     // new MakeFile("test");
     new MakeFile("puremvc");
@@ -35,6 +35,6 @@ function main() {
  */
 function defineCompileRoot(): void {
     const args = process.argv.slice(2);
-    Constants.DIR_ROOT = args[0] || "E:\\work\\laya\\1.x";
-    // Constants.DIR_ROOT = args[0] || "D:\\Project\\laya\\1.x";
+    // Constants.DIR_ROOT = args[0] || "E:\\work\\laya\\1.x";
+    Constants.DIR_ROOT = args[0] || "D:\\Project\\laya\\1.x";
 }
