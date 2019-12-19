@@ -84,7 +84,8 @@ export class CreateDtsFile {
                 }
                 this.$exportNotes(2, item.notes);
                 const s0 = vars.length === 0 ? "" : ",";
-                this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.name}${s0}`);
+                const s1 = item.value === "" ? "" : ` = ${item.value}`;
+                this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.name}${s1}${s0}`);
             }
 
             this.$lines.push(`${Constants.TAB}}`);

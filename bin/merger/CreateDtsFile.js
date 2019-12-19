@@ -63,7 +63,8 @@ var CreateDtsFile = /** @class */ (function () {
                 }
                 this.$exportNotes(2, item.notes);
                 var s0 = vars.length === 0 ? "" : ",";
-                this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.name + s0);
+                var s1 = item.value === "" ? "" : " = " + item.value;
+                this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.name + s1 + s0);
             }
             this.$lines.push(Constants_1.Constants.TAB + "}");
         }
