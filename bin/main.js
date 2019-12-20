@@ -10,7 +10,7 @@ main();
  * 入口函数
  */
 function main() {
-    FileManager_1.FileManager.pack("sunlib", ["suncom", "suncore", "sunui", "sunnet", "world2d"]);
+    // FileManager.pack("sunlib", ["suncom", "suncore", "sunui", "sunnet", "world2d"]);
     // new MakeFile("test");
     new MakeFile_1.MakeFile("puremvc");
     new MakeFile_1.MakeFile("suncom");
