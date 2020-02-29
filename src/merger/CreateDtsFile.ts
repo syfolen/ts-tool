@@ -88,6 +88,15 @@ export class CreateDtsFile {
                 this.$lines.push(`${Constants.TAB}${Constants.TAB}${item.name}${s1}${s0}`);
             }
 
+            const reg0: number = this.$lines.length - 1;
+            const s2: string = this.$lines[reg0];
+
+            const reg1: number = s2.length - 1;
+            const s3: string = s2.charAt(reg1);
+            if (s3 === ",") {
+                this.$lines[reg0] = s2.substr(0, reg1);
+            }
+
             this.$lines.push(`${Constants.TAB}}`);
         }
 

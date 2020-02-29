@@ -66,6 +66,13 @@ var CreateDtsFile = /** @class */ (function () {
                 var s1 = item.value === "" ? "" : " = " + item.value;
                 this.$lines.push("" + Constants_1.Constants.TAB + Constants_1.Constants.TAB + item.name + s1 + s0);
             }
+            var reg0 = this.$lines.length - 1;
+            var s2 = this.$lines[reg0];
+            var reg1 = s2.length - 1;
+            var s3 = s2.charAt(reg1);
+            if (s3 === ",") {
+                this.$lines[reg0] = s2.substr(0, reg1);
+            }
             this.$lines.push(Constants_1.Constants.TAB + "}");
         }
         return numOfDfn;
