@@ -30,7 +30,7 @@ function main() {
  */
 function defineCompileRoot() {
     var args = process.argv.slice(2);
-    // Constants.DIR_ROOT = args[0] || "E:\\work\\laya\\1.x";
-    Constants_1.Constants.DIR_ROOT = args[0] || "D:\\Project\\laya\\1.x";
+    Constants_1.Constants.DIR_ROOT = args[0] || "E:\\work\\laya\\1.x";
+    // Constants.DIR_ROOT = args[0] || "D:\\Project\\laya\\1.x";
 }
 //# sourceMappingURL=main.js.map

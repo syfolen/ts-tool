@@ -352,7 +352,7 @@ var CreateDtsFile = /** @class */ (function () {
                     for (var _b = 0, _c = item.args; _b < _c.length; _b++) {
                         var arg = _c[_b];
                         var s0 = arg.optional === false ? "" : "?";
-                        var s1 = "" + arg.name + s0 + ":" + arg.type;
+                        var s1 = "" + arg.name + s0 + ": " + arg.type;
                         args.push(s1);
                     }
                     var s2 = item.name === "constructor" ? "" : ": " + item.retVal;
