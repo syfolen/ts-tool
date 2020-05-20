@@ -11,7 +11,7 @@ main();
  * 入口函数
  */
 function main() {
-    FileManager.pack("sunlib", ["suncom", "suncore", "sunui", "sunnet", "world2d"]);
+    FileManager.pack("sunlib", ["suncom", "suncore", "sunui", "sunnet", "suntdd", "world2d"]);
 
     // new MakeFile("test");
     new MakeFile("puremvc");
@@ -19,6 +19,7 @@ function main() {
     new MakeFile("suncore");
     new MakeFile("sunui");
     new MakeFile("sunnet");
+    new MakeFile("suntdd");
     new MakeFile("world2d");
     // new MakeFile("quadtree");
 
