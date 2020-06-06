@@ -14,10 +14,10 @@ function main() {
     // new MakeFile("test");
     new MakeFile_1.MakeFile("puremvc");
     new MakeFile_1.MakeFile("suncom");
+    new MakeFile_1.MakeFile("suntdd");
     new MakeFile_1.MakeFile("suncore");
     new MakeFile_1.MakeFile("sunui");
     new MakeFile_1.MakeFile("sunnet");
-    new MakeFile_1.MakeFile("suntdd");
     new MakeFile_1.MakeFile("world2d");
     // new MakeFile("quadtree");
     Logger_1.Logger.output("name");
