@@ -495,7 +495,7 @@ export class CreateDtsFile {
                 const args: string[] = [];
                 for (const arg of item.args) {
                     const s0 = arg.optional === false ? "" : "?";
-                    const s1 = `${arg.name}${s0}:${arg.type}`;
+                    const s1 = `${arg.name}${s0}: ${arg.type}`;
                     args.push(s1);
                 }
                 const s2 = `${item.keywords.join(" ")} ${item.name}(${args.join(", ")}): ${item.retVal};`;
