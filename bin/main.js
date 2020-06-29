@@ -10,12 +10,12 @@ main();
  * 入口函数
  */
 function main() {
-    // FileManager.pack("sunlib", ["suncom", "suncore", "suntdd", "sunui", "sunnet", "world2d"]);
+    FileManager_1.FileManager.pack("sunlib", ["suncom", "suncore", "suntdd", "sunui", "sunnet", "world2d"]);
     // new MakeFile("test");
     new MakeFile_1.MakeFile("puremvc");
     new MakeFile_1.MakeFile("suncom");
     new MakeFile_1.MakeFile("suncore");
-    new MakeFile_1.MakeFile("suntdd");
+    // new MakeFile("suntdd");
     new MakeFile_1.MakeFile("sunui");
     new MakeFile_1.MakeFile("sunnet");
     new MakeFile_1.MakeFile("world2d");
