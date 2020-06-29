@@ -83,7 +83,7 @@ var FileManager;
                 lines.push(file.str);
             }
             if (lines.length > 0) {
-                var s2 = lines.join(Constants_1.Constants.NEWLINE);
+                var s2 = lines.join(Constants_1.Constants.NEWLINE + Constants_1.Constants.NEWLINE);
                 output(s0, s1, s2);
             }
             while (array.length > 0) {

@@ -115,7 +115,7 @@ export namespace FileManager {
                 lines.push(file.str);
             }
             if (lines.length > 0) {
-                const s2 = lines.join(Constants.NEWLINE);
+                const s2 = lines.join(Constants.NEWLINE + Constants.NEWLINE);
                 output(s0, s1, s2);
             }
             while (array.length > 0) {
