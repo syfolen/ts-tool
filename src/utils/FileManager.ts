@@ -162,10 +162,10 @@ export namespace FileManager {
     function output(name: string, ext: string, str: string): void {
         let s0: string;
         if (ext === "ts") {
-            s0 = Util.getAbsolutePath("myLaya", Constants.DIR_SRC, `${name}.${ext}`);
+            s0 = Util.getAbsolutePath("my-laya", Constants.DIR_SRC, `${name}.${ext}`);
         }
         else if (ext = "d.ts") {
-            s0 = Util.getAbsolutePath("myLaya", Constants.DIR_RELEASE, `${name}.${ext}`);
+            s0 = Util.getAbsolutePath("my-laya", Constants.DIR_RELEASE, `${name}.${ext}`);
         }
         else if (ext === "log") {
             s0 = Util.getAbsolutePath(Constants.DIR_ROOT, `${name}.${ext}`);

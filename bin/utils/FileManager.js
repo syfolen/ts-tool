@@ -131,10 +131,10 @@ var FileManager;
     function output(name, ext, str) {
         var s0;
         if (ext === "ts") {
-            s0 = Util_1.Util.getAbsolutePath("myLaya", Constants_1.Constants.DIR_SRC, name + "." + ext);
+            s0 = Util_1.Util.getAbsolutePath("my-laya", Constants_1.Constants.DIR_SRC, name + "." + ext);
         }
         else if (ext = "d.ts") {
-            s0 = Util_1.Util.getAbsolutePath("myLaya", Constants_1.Constants.DIR_RELEASE, name + "." + ext);
+            s0 = Util_1.Util.getAbsolutePath("my-laya", Constants_1.Constants.DIR_RELEASE, name + "." + ext);
         }
         else if (ext === "log") {
             s0 = Util_1.Util.getAbsolutePath(Constants_1.Constants.DIR_ROOT, name + "." + ext);
