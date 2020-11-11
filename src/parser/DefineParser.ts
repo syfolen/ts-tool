@@ -583,7 +583,6 @@ export abstract class DefineParser {
             this.$parserVarInfo(str.substr(0, reg1), info);
         }
 
-
         return info;
     }
 
@@ -592,6 +591,12 @@ export abstract class DefineParser {
      */
     protected $parserVarInfo(str: string, out: IVariableInfo): void {
         const line = out.lines[0];
+
+        if (str.indexOf("type ") === 0) {
+            out.type = "type";
+            out.value = str.substr(5);
+            return;
+        }
 
         const reg0 = str.indexOf(": ");
         if (reg0 === -1) {

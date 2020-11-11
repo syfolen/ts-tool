@@ -14,6 +14,7 @@ import { ModuleParser } from "../parser/ModuleParser";
 import { FileManager } from "../utils/FileManager";
 import { ExportTypeEnum } from "../interfaces/ExportTypeEnum";
 import { NamespaceParser } from "../parser/NamespaceParser";
+import { info } from "console";
 
 export class CreateDtsFile {
 
@@ -476,7 +477,7 @@ export class CreateDtsFile {
                 if (item.keywords.shift() !== "export") {
                     throw Error(`写入.d.ts文件中的变量必须声明为export`);
                 }
-                const s0 = `${item.keywords.join(" ")} ${item.name}: ${item.type};`;
+                const s0 = item.type === "type" ? `type ${item.value};` : `${item.keywords.join(" ")} ${item.name}: ${item.type};`;
                 this.$lines.push(`${Constants.TAB}${s0}`);
             }
             while (funcs.length > 0) {
