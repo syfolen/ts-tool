@@ -15,8 +15,8 @@ function main() {
 
     // new MakeFile("test");
     new MakeFile("puremvc");
-    // new MakeFile("suncom");
-    // new MakeFile("suncore");
+    new MakeFile("suncom");
+    new MakeFile("suncore");
     // new MakeFile("suntdd");
     // new MakeFile("sunui");
     // new MakeFile("sunnet");
