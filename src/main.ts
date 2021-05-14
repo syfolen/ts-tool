@@ -11,14 +11,14 @@ main();
  * 入口函数
  */
 function main() {
-    // FileManager.pack("sunlib", ["suncom", "suncore", "suntdd", "sunui", "sunnet", "world2d"]);
+    FileManager.pack("sunlib", ["suncom", "suncore", "suntdd", "sunui", "sunnet", "world2d"]);
 
     // new MakeFile("test");
     new MakeFile("puremvc");
     new MakeFile("suncom");
     new MakeFile("suncore");
     // new MakeFile("suntdd");
-    // new MakeFile("sunui");
+    new MakeFile("sunui");
     // new MakeFile("sunnet");
     // new MakeFile("world2d");
     // new MakeFile("quadtree");
@@ -36,6 +36,5 @@ function main() {
  */
 function defineCompileRoot(): void {
     const args = process.argv.slice(2);
-    // Constants.DIR_ROOT = args[0] || "E:\\work\\laya\\1.x";
-    Constants.DIR_ROOT = args[0] || "D:\\work\\laya\\laya1.x";
+    Constants.DIR_ROOT = args[0] || "D:\\work\\my-git";
 }
